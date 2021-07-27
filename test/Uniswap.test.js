@@ -77,7 +77,7 @@ describe("Use pool contracts", function() {
         const deadline = now.timestamp + 100000;
         
         const tx = await router.methods
-        .addLiquidityETH(token1Address, "10", "0", 0, accounts[0], deadline)
+        .addLiquidityETH(token1Address, "10", "10", 1, accounts[0], deadline)
         .send({ from: accounts[0], gas: "3000000", value: ethToWei(1) });
 
         console.log(tx);
