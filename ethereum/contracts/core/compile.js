@@ -1,7 +1,7 @@
 "use-strict";
 
 const path = require("path");
-const solc = require("solc"); //don"t forget to install the right solc version !
+const solc = require("solc"); //don"t forget to install the right solc version ! (here 0.5.16)
 const fs = require("fs-extra");
 
 const buildPath = path.resolve(__dirname, "build");

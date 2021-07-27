@@ -1,7 +1,7 @@
 "use-strict";
 
 const path = require("path");
-const solc = require("solc"); //don"t forget to install the right solc version !
+const solc = require("solc"); //don"t forget to install the right solc version ! (0.6.6 for periphery)
 const fs = require("fs-extra");
 
 const buildPath = path.resolve(__dirname, "build");
@@ -42,7 +42,7 @@ function compileContract(arrayContractPath) {
             sourceCodeToImport = fs.readFileSync(`../../../node_modules/${path}`);
             return { contents: `${sourceCodeToImport}` };
         } 
-        if (arrayContractPath.length === 2) { // array contract path is "./" + contract.sol, i.e simple import in the same folder as the compile.js
+        if (arrayContractPath.length === 2) { // array contract path is "./" + contract.sol, i.e the compield contract is in the same folder as compile.js => import paths have the same starting point, no need to change them
             sourceCodeToImport = fs.readFileSync(`./${path}`);
             return { contents: `${sourceCodeToImport}` };
         }
