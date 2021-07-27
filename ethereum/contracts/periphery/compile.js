@@ -4,7 +4,6 @@ const path = require("path");
 const solc = require("solc"); //don"t forget to install the right solc version !
 const fs = require("fs-extra");
 
-
 const buildPath = path.resolve(__dirname, "build");
 
 fs.removeSync(buildPath);
