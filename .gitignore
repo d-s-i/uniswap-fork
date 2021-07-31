@@ -32,3 +32,7 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+#deploy
+/ethereum/contracts/core/deploy.js
+/ethereum/contracts/periphery/deploy.js

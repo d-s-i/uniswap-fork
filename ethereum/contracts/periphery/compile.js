@@ -47,7 +47,7 @@ function compileContract(arrayContractPath) {
             return { contents: `${sourceCodeToImport}` };
         }
         if(!path.includes("/")) { // === contract to import is in the same folder as the contract we are compiling i.e the import path from the contract fiel doesn't include "/"
-            sourceCodeToImport = fs.readFileSync(`./${intermediateFoldersOfCurrentContract}/${path}`);
+            sourceCodeToImport = fs.readFileSync(`./${intermediateFoldersOfCurrentContract.join("/")}/${path}`);
             return { contents: `${sourceCodeToImport}` };
         }
         else { // if neither of these, contract must be (in my case) accessible from the compile.js, i.e no need to change the path
