@@ -1,11 +1,14 @@
 import React from "react";
 import Link from "next/link";
 
+import web3 from "../../../ethereum/web3";
+
 import { AppBar, Toolbar, Typography, makeStyles, Button } from "@material-ui/core";
 import Image from "next/image";
 
 import PriceCard from "../../PriceCard/PriceCard";
 import babyDogeLogo from "../../../public/babyDogeLogo.png";
+import LoginButton from "../Buttons/LoginButton";
 
 const useStyles = makeStyles({
     brandName: {
@@ -23,6 +26,7 @@ const useStyles = makeStyles({
     left: {
         display: "flex",
         justifyContent: "flex-end",
+        width: "50%"
     },
     toolbar: {
         justifyContent: "space-between",
@@ -37,6 +41,10 @@ function AppLayout() {
 
     const styles = useStyles();
 
+    async function loginHandler() {
+        await web3.eth.getAccounts();
+    }
+
     return(
         <AppBar position="static" className={styles.appbar} >
             <Toolbar className={styles.toolbar} >
@@ -50,7 +58,7 @@ function AppLayout() {
                     <PriceCard token="BabyToy" price="101.12" />
                     <PriceCard token="BabyLeash" price="0.0005" />
                     <PriceCard token="BabyDoge" price="0.0000012" />
-                    <Button variant="outlined" color="primary">Login</Button>
+                    <LoginButton onLogin={loginHandler} />
                 </div>
             </Toolbar>
         </AppBar>

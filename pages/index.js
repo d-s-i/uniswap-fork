@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
+
+import web3 from "../ethereum/web3";
 
 import DescriptionCard from "../components/DescriptionCard/DescriptionCard";
-
 import Typography from "@material-ui/core/Typography";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -25,6 +26,9 @@ const useStyles = makeStyles({
 }, { name: "MuiExample_Component" });
 
 export default function Home() {
+
+  // const useEffect = React.useEffect();
+
   const styles = useStyles();
 
   const cardDescription = [
@@ -53,6 +57,13 @@ export default function Home() {
       middle: false
     }
   ];
+
+  useEffect(() => {
+    async function login() {
+      await web3.eth.getAccounts();
+    }
+    login();
+  }, []);
 
   return (
       <AppCard main >
