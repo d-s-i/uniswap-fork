@@ -1,0 +1,13 @@
+.container {
+    background-color: white;
+    padding: 0 15% 0 15%;
+    width: 100%;
+}
+
+.secondary-container {
+    background-color: #121212;
+    color: #cccccc;
+    padding: 5% 15% 0 15%;
+    width: 100%;
+    height: 100vh;
+}
