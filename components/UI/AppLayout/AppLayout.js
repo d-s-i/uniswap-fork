@@ -4,20 +4,22 @@ import Link from "next/link";
 import web3 from "../../../ethereum/web3";
 
 import { AppBar, Toolbar, Typography, makeStyles, Button } from "@material-ui/core";
+import { useTheme } from '@material-ui/core/styles';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+
 import Image from "next/image";
 
-import PriceCard from "../../PriceCard/PriceCard";
 import babyDogeLogo from "../../../public/babyDogeLogo.png";
-import LoginButton from "../Buttons/LoginButton";
 
 const useStyles = makeStyles({
     brandName: {
-        fontSize: "2.5em",
-        paddingLeft: "1%"
+        paddingLeft: "2%"
     },
     menu: {
         display: "flex",
         justifyContent: "flex-start",
+        alignItems: "center",
+        flexGrow: 1,
         width: "100%",
         "&:hover": {
             cursor: "pointer"
@@ -25,15 +27,9 @@ const useStyles = makeStyles({
     },
     left: {
         display: "flex",
-        justifyContent: "flex-end",
-        width: "50%"
-    },
-    toolbar: {
-        justifyContent: "space-between",
     },
     appbar: {
         backgroundColor: "#0ab5db",
-        padding: "0 5% 0 5%"
     },
     loginButton: {
         backgroundColor: "white",
@@ -56,7 +52,8 @@ const useStyles = makeStyles({
         boxShadow: "2px 1000px 1px #121212 inset",
         margin: "1% 1% 1% 1%",
         padding: "1% 0 1% 0",
-        width: "250px"
+        width: "100%",
+        whiteSpace: "nowrap"
     }
 });
 
@@ -64,23 +61,28 @@ function AppLayout() {
 
     const styles = useStyles();
 
+    const theme = useTheme();
+
+    const md = useMediaQuery(theme.breakpoints.up('md'));
+    const lg = useMediaQuery(theme.breakpoints.up('lg'));
+
     async function loginHandler() {
         await web3.eth.getAccounts();
     }
 
     return(
         <AppBar position="static" className={styles.appbar} >
-            <Toolbar className={styles.toolbar} >
+            <Toolbar >
                 <Link href="/" passHref >
                     <div className={styles.menu} >
                         <Image src={babyDogeLogo} width={50} height={50} alt="logo" />
-                        <Typography variant="h6" className={styles.brandName} >BabyDogeSwap</Typography>
+                        <Typography variant="h4" className={styles.brandName} style={{ fontWeight: "bold" }} >BabyDogeSwap</Typography>
                     </div >
                 </Link>
                 <div className={styles.left} >
-                    <Button disableRipple className={styles.priceButton} variant="contained" >{`${"BabyDoge"} $${"0.00000125"}`}</Button>
-                    <Button disableRipple className={styles.priceButton} variant="contained" >{`${"BabyLeash"} $${"0.0000625"}`}</Button>
-                    <Button disableRipple className={styles.priceButton} variant="contained" >{`${"BabyDoge"} $${"101.12"}`}</Button>
+                    {(lg || md) && <Button disableRipple className={styles.priceButton} variant="contained" >{`${"BabyDoge"} $${"0.00000125"}`}</Button>}
+                    {(lg || md) && <Button disableRipple className={styles.priceButton} variant="contained" >{`${"BabyLeash"} $${"0.0000625"}`}</Button>}
+                    {(lg || md) && <Button disableRipple className={styles.priceButton} variant="contained" >{`${"BabyDoge"} $${"101.12"}`}</Button>}
                     <Button className={styles.loginButton} variant="contained" onClick={loginHandler} >Login</Button>
                 </div>
             </Toolbar>
