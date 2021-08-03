@@ -1,0 +1,20 @@
+.footer {
+    display: flex;
+    justify-content: space-around;
+    background-color: white;
+    /* border-top: 1px solid #0ab5db;  */
+    padding-top: 5%;
+}
+
+.case {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 0.5% 0 0.5% 0;
+}
+
+.case:hover {
+    background-color: 	rgb(158, 233, 250);
+    cursor: pointer;
+    color: white;
+}
