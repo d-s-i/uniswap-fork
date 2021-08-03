@@ -1,7 +1,15 @@
 .button {
     border-radius: 1em;
+    background: white;
+    color: #0ab5db;
+    border: 2px #0ab5db solid;
+    font-size: 1.5em;
+    font-weight: bold;
+    padding: 3% 0 3% 0;
 }
 
 .button:hover {
     cursor: pointer;
+    background: #0ab5db;
+    color: #cccccc;
 }

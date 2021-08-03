@@ -1,0 +1,55 @@
+.container {
+    background-color: white;
+    padding: 0 15% 0 15%;
+    width: 100%;
+}
+
+.xs-container {
+    background-color: white;
+    padding: 0 2% 0 2%;
+    width: 100%;
+}
+
+.xs-secondary-container {
+    background-color: #121212;
+    color: #cccccc;
+    padding: 0 2% 0 2%;
+    width: 100%;
+    height: 100vh;
+}
+
+.sm-container {
+    background-color: white;
+    padding: 0 15% 0 15%;
+    width: 100%;
+}
+
+.sm-secondary-container {
+    background-color: #121212;
+    color: #cccccc;
+    padding: 0 15% 0 15%;
+    width: 100%;
+    height: 100vh;
+}
+
+.secondary-container {
+    background-color: #121212;
+    color: #cccccc;
+    padding: 0 15% 0 15%;
+    width: 100%;
+    height: 100vh;
+}
+
+.lg-container {
+    background-color: white;
+    padding: 0 20% 0 20%;
+    width: 100%;
+}
+
+.lg-secondary-container {
+    background-color: #121212;
+    color: #cccccc;
+    padding: 0 20% 0 20%;
+    width: 100%;
+    height: 100vh;
+}

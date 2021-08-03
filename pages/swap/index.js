@@ -1,13 +1,13 @@
 import React from "react";
-import AppCard from "../../components/UI/Cards/AppCard";
+import AppCardSub from "../../components/UI/Cards/AppCardSub";
 import SwapCard from "../../components/UI/Cards/SwapCard";
 
 function SwapPage() {
 
     return(
-        <AppCard>
+        <AppCardSub>
             <SwapCard />
-        </AppCard>
+        </AppCardSub>
     );
 }
 

@@ -1,11 +1,11 @@
-import AppCard from "../../components/UI/Cards/AppCard";
+import AppCardSub from "../../components/UI/Cards/AppCardSub";
 import LiquidityCard from "../../components/UI/Cards/LiquidityCard";
 
 function LiquidityPage() {
     return(
-        <AppCard>
+        <AppCardSub>
             <LiquidityCard />
-        </AppCard>
+        </AppCardSub>
     );
 }
 

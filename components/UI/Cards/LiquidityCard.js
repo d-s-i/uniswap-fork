@@ -16,7 +16,7 @@ function LiquidityCard(props) {
 
         const blockNumber = await web3.eth.getBlockNumber();
         const now = await web3.eth.getBlock(blockNumber);
-        const deadline = now.timestamp + 100000;
+        const deadline = now.timestamp + 10000;
 
         await router.methods
         .addLiquidityETH("0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9", "1", "1", ethToWei(1), accounts[0], deadline)
@@ -28,7 +28,7 @@ function LiquidityCard(props) {
             <Typography style={{ fontWeight: "bold" }} className={styles["card-title"]} variant="h4">Add Liquidity</Typography>
             <Typography className={styles["card-subtitle"]} variant="subtitle1">{`Provide liquidity for ${props.token0 || "--"} and ${props.token1 || "--"} in the community liquidity pool!`}</Typography>
             <FormTokenInput />
-            <UserInputButton onClick={addLiquidity} message="buy" />
+            <UserInputButton onClick={addLiquidity} message="Add Liquidity" />
         </div>
     );
 }

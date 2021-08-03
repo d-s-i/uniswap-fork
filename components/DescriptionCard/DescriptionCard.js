@@ -9,7 +9,11 @@ const useStyles = makeStyles({
     card: {
         backgroundColor: "#f7f7f7",
         border: "none",
-        borderRadius: "1rem"
+        borderRadius: "1rem",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between"
     },
     middleCard: {
         backgroundColor: "#f7f7f7",
@@ -21,7 +25,7 @@ const useStyles = makeStyles({
         color: "#0ab5db",
         fontWeight: "bold",
     },
-    description: {
+    descriptionGrid: {
         fontSize: "1em"
     },
     button: {
@@ -33,19 +37,30 @@ const useStyles = makeStyles({
             color: "white",
             backgroundColor: "#0ab5db"
         }
+    },
+    action: {
+        display: "flex",
+        justifyContent: "center"
+    },
+    content: {
+        display: "flex",
+        height: "100%",
+        flexDirection: "column",
+        justifyContent: "space-around"
     }
+
 }, { name: "MuiExample_Component" });
 
 function DescriptionCard(props) {
     const styles = useStyles();
 
     return(
-        <Card variant="outlined" className={styles.card} >
-            <CardContent>
+        <Card variant="outlined" align="center" className={styles.card} >
+            <CardContent className={styles.content} >
                 <Typography className={styles.title} variant="h6">{props.title}</Typography>
-                <Typography className={styles.description} variant="subtitle1">{props.description}</Typography>
+                <Typography className={styles.descriptionGrid} variant="subtitle1">{props.description}</Typography>
             </CardContent>
-            <CardActions>
+            <CardActions className={styles.action} >
                 <Link href={props.destination} passHref>
                     <Button className={styles.button} startIcon={props.icon} >{props.action}</Button>
                 </Link>

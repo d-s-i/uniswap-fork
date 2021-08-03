@@ -1,6 +1,7 @@
 import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import styles from "./AppCard.module.css";
+import React from 'react';
+import styles from "./AppCardSub.module.css";
 
 function AppCard(props) {
 
@@ -11,12 +12,12 @@ function AppCard(props) {
     const lg = useMediaQuery(theme.breakpoints.up('lg'));
     
     return(
-        <div>
-            {xs && !sm && !md && <div className={props.main && styles["xs-container"] || styles["xs-secondary-container"]}  >{props.children}</div>}
+        <React.Fragment>
+            {xs && !sm && <div className={props.main && styles["xs-container"] || styles["xs-secondary-container"]}  >{props.children}</div>}
             {sm && !md && <div className={props.main && styles["sm-container"] || styles["sm-secondary-container"]}  >{props.children}</div>}
             {md && !lg && <div className={props.main && styles.container || styles["secondary-container"]}  >{props.children}</div>}
             {lg && <div className={props.main && styles["lg-container"] || styles["lg-secondary-container"]}  >{props.children}</div>}
-        </div>
+        </React.Fragment>
     );
 }
 
