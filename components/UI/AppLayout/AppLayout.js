@@ -34,6 +34,29 @@ const useStyles = makeStyles({
     appbar: {
         backgroundColor: "#0ab5db",
         padding: "0 5% 0 5%"
+    },
+    loginButton: {
+        backgroundColor: "white",
+        fontSize: "1.2em",
+        fontWeight: "bold",
+        borderRadius: "100rem",
+        color: "#0ab5db",
+        margin: "1% 1% 1% 1%",
+        padding: "1% 0 1% 0",
+        width: "150px",
+
+    },
+    priceButton: {
+        backgroundImage: "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0)), linear-gradient(to bottom left, #000000 30%, #ffcc66 100%)",
+        color: "#cccccc",
+        borderRadius: "100rem",
+        border: "solid 3px transparent",
+        backgroundOrigin: "border-box",
+        backgroundClip: "ontent-box, border-box",
+        boxShadow: "2px 1000px 1px #121212 inset",
+        margin: "1% 1% 1% 1%",
+        padding: "1% 0 1% 0",
+        width: "250px"
     }
 });
 
@@ -55,10 +78,10 @@ function AppLayout() {
                     </div >
                 </Link>
                 <div className={styles.left} >
-                    <PriceCard token="BabyToy" price="101.12" />
-                    <PriceCard token="BabyLeash" price="0.0005" />
-                    <PriceCard token="BabyDoge" price="0.0000012" />
-                    <LoginButton onLogin={loginHandler} />
+                    <Button disableRipple className={styles.priceButton} variant="contained" >{`${"BabyDoge"} $${"0.00000125"}`}</Button>
+                    <Button disableRipple className={styles.priceButton} variant="contained" >{`${"BabyLeash"} $${"0.0000625"}`}</Button>
+                    <Button disableRipple className={styles.priceButton} variant="contained" >{`${"BabyDoge"} $${"101.12"}`}</Button>
+                    <Button className={styles.loginButton} variant="contained" onClick={loginHandler} >Login</Button>
                 </div>
             </Toolbar>
         </AppBar>

@@ -8,7 +8,8 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import Box from "@material-ui/core/Box";
+import Grid from "@material-ui/core/Grid";
+import Paper from "@material-ui/core/Paper";
 import Battery90Icon from '@material-ui/icons/Battery90';
 import SwapHorizontalCircleIcon from '@material-ui/icons/SwapHorizontalCircle';
 import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
@@ -22,12 +23,13 @@ const useStyles = makeStyles({
     padding: "3% 0 3% 0",
     color: "#0ab5db",
     fontWeight: "bold",
+  },
+  paper: {
+    border: "0px transparent"
   }
 }, { name: "MuiExample_Component" });
 
 export default function Home() {
-
-  // const useEffect = React.useEffect();
 
   const styles = useStyles();
 
@@ -38,14 +40,12 @@ export default function Home() {
       action: "Swap some BabyLeash here" ,
       icon: <Battery90Icon />,
       destination: "/swap",
-      middle: false
     },
     {
       title: "Get BabyLeash for Free!" ,
       description: "Withdraw your liquidity from Uniswap in a few seconds, like nothing happened, and provide it to BabyDogeSwap ... We give some BabyLeash (urgently needed for your BabyDoge)" ,
       action: "Prodive liquidity & earn BabyLeash now!" ,
       icon: <AddShoppingCartIcon />,
-      middle: true,
       destination: "/liquidity",
     },
     {
@@ -54,7 +54,6 @@ export default function Home() {
       action: "Buy some BabyDoge",
       icon: <SwapHorizontalCircleIcon />,
       destination: "/swap",
-      middle: false
     }
   ];
 
@@ -85,16 +84,18 @@ export default function Home() {
             </ListItem>
           </List>
           <Typography variant="subtitle1" >{"We can't let ShibaSwap being the best community marketplace! Let's show them that it's important to save dog and to trade BabyDoge ! The power of community created the best market place ever."}</Typography>
-          <Box display="flex" >
-            {cardDescription.map(content => <DescriptionCard 
-            key={content.title}
-            title={content.title} 
-            description={content.description} 
-            action={content.action} 
-            middle={content.middle} 
-            icon={content.icon} 
-            destination={content.destination} />)}
-          </Box>
+          <Grid container spacing={2} justifyContent="center" >  
+            {cardDescription.map(content => {
+              return (
+              <Grid item key={content.title} xs={12} sm={7} md={4} lg={4} >
+                  <DescriptionCard 
+                    title={content.title} 
+                    description={content.description} 
+                    action={content.action} 
+                    icon={content.icon} 
+                    destination={content.destination} />
+              </Grid>)})}
+          </Grid>
       </AppCard>
   );
 }

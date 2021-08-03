@@ -8,13 +8,11 @@ import Link from "next/link";
 const useStyles = makeStyles({
     card: {
         backgroundColor: "#f7f7f7",
-        width: "33%",
         border: "none",
         borderRadius: "1rem"
     },
     middleCard: {
         backgroundColor: "#f7f7f7",
-        width: "33%",
         border: "none",
         borderRadius: "1rem",
         margin: "0 2% 0 2%"
@@ -42,7 +40,7 @@ function DescriptionCard(props) {
     const styles = useStyles();
 
     return(
-        <Card variant="outlined" className={props.middle && styles.middleCard || styles.card} >
+        <Card variant="outlined" className={styles.card} >
             <CardContent>
                 <Typography className={styles.title} variant="h6">{props.title}</Typography>
                 <Typography className={styles.description} variant="subtitle1">{props.description}</Typography>
