@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAddLiquidityContext } from "../../store/addLiquidity-context";
+import { useSwapContext } from "../../store/swap-context";
 
 import babyDogeLogo from "../../public/babyDogeLogo.png";
 import BNBLogo from "../../public/BNBLogo.png";
@@ -53,12 +54,11 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     justifyContent: "flex-start",
     alignItems: "center",
-    border: "1px white solid",
+    border: "1px grey solid",
     borderRadius: "1em",
     color: "white",
     "&:hover": {
-      backgroundColor: "#404040",
-      cursor: "pointer"
+      backgroundColor: "#262626",
     }
   }
 }));
@@ -70,11 +70,68 @@ function SelectToken(props) {
   // BabyLeash Test Rinkeby address : 0x6E78d42cCe7E83FEBfE9ed3Bb5f3074A6eEE7e7c
   // WETH address for test purposes : 0xc778417E063141139Fce010982780140Aa0cD5Ab
 
-  const context = useAddLiquidityContext();
+  const addLiquidityContext = useAddLiquidityContext();
+  const swapContext = useSwapContext();
   const classes = useStyles();
-  const [token, setToken] = React.useState(props.defaultToken); // /!\ change all the value for that it really match BNB, and not only the value on the Select component !!!  (change all the state)
+  const [token0, setToken0] = React.useState(""); // /!\ change all the value for that it really match BNB, and not only the value on the Select component !!!  (change all the state)
+  const [token1, setToken1] = React.useState(props.defaultToken); // /!\ change all the value for that it really match BNB, and not only the value on the Select component !!!  (change all the state)
 
-  if(props.defaultToken === "BNB") {
+  const babyDogeData = {name: "BABYDOGE", address: "0x010b3D7055e53847480FDBdA62771c6D74C76453"};
+  const babyToyData = {name: "BABYTOY", address: "0xe150341e165379cbc8b5f5e0d46Eff220E318F45"};
+  const babyLeashData = {name: "BABYLEASH", address: "0x6E78d42cCe7E83FEBfE9ed3Bb5f3074A6eEE7e7c"};
+  const bnbData = {name: "BNB", address: ""};
+
+  function setData(tokenData) {
+    if(props.id === "token0") {
+      setToken0(tokenData.name);
+      changeRightContext(tokenData);
+    }
+    if(props.id === "token1") {
+      setToken1(tokenData.name);
+      changeRightContext(tokenData);
+    }
+  }
+  
+  
+  function changeRightContext(token) {
+    if(props.mode === "liquidity") {
+      addLiquidityContext.onToken0Change(token);
+    }
+    if(props.mode === "swap") {
+      if(props.id === "token0") {
+        swapContext.onToken0Change(token);
+      }
+      if(props.id === "token1") {
+        swapContext.onToken1Change(token);
+      }
+    }
+  }
+  
+  function tokenChangeHandler(event) { 
+    if(event.target.value === "BABYDOGE"){
+      setData(babyDogeData);
+    }
+    if(event.target.value === "BABYTOY"){
+      setData(babyToyData);
+    }
+    if(event.target.value === "BABYLEASH"){
+      setData(babyLeashData);
+    }
+    if(event.target.value === "BNB"){
+      setData(bnbData);
+    }
+  };
+  
+  useEffect(() => {
+    if(swapContext.token0.name !== token0.name) {
+      setToken0(swapContext.token0.name);
+    }
+    if(swapContext.token1.name !== token1.name) {
+      setToken1(swapContext.token1.name);
+    }
+  }, [swapContext.token0, swapContext.token1])
+  
+  if(props.mode === "liquidity" && props.defaultToken === "BNB") {
     return (
       <div className={classes.bnb} >
         <TokenListItem src={BNBLogo} token="BNB" alt="BNBLogo" />
@@ -82,64 +139,33 @@ function SelectToken(props) {
     );  
   }
   
-  const handleTokenChange = (event) => { 
-    if(event.target.value === "BABYDOGE"){
-      setToken("BABYDOGE");
-      context.onToken0Change({
-        name: "BABYDOGE",
-        address: "0x010b3D7055e53847480FDBdA62771c6D74C76453",
-      });
-    }
-    if(event.target.value === "BABYTOY"){
-      setToken("BABYTOY");
-      context.onToken0Change({
-        name: "BABYTOY",
-        address: "0xe150341e165379cbc8b5f5e0d46Eff220E318F45",
-      });
-    }
-    if(event.target.value === "BABYLEASH"){
-      setToken("BABYLEASH");
-      context.onToken0Change({
-        name: "BABYLEASH",
-        address: "0x6E78d42cCe7E83FEBfE9ed3Bb5f3074A6eEE7e7c",
-      });
-    }
-    // if(event.target.value === "BNB"){
-    //   setToken("BNB");
-    //   context.onToken0Change({
-    //     name: "BNB", // WETH for testins purposes
-    //     address: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
-    //   });
-    // }
-  };
-    
-    return(
-      <FormControl variant="filled" className={classes.formControl} hiddenLabel={token ? true : false} noValidate autoComplete="off">
-        {!token && <InputLabel className={classes.input} id="demo-simple-select-outlined-label">Select a Token</InputLabel>}
-        <Select
-          labelId="demo-simple-select-outlined-label"
-          id="demo-simple-select-outlined"
-          value={token}
-          onChange={handleTokenChange}
-          label="token"
-          className={classes.select}
-        >
-          <MenuItem value=""><em>Nones</em></MenuItem>
-          <MenuItem value={"BABYDOGE"}>
-            <TokenListItem src={babyDogeLogo} token="BabyDoge" alt="babyDogeLogo" />
-          </MenuItem>
-          <MenuItem value={"BABYTOY"}>
-            <TokenListItem src={babyToyLogo} token="BabyToy" alt="babyToyLogo" />
-          </MenuItem>
-          <MenuItem value={"BABYLEASH"}>
-            <TokenListItem src={babyLeashLogo} token="BabyLeash" alt="BabyLeash" />
-          </MenuItem>
-          {/* <MenuItem value={"BNB"}>
-            <TokenListItem src={BNBLogo} token="BNB" alt="BNBLogo" />
-          </MenuItem> */}
-        </Select>
-      </FormControl>
-    );
+  return(
+    <FormControl variant="filled" className={classes.formControl} hiddenLabel={props.id === "token0" ? token0 ? true : false : token1 ? true : false} noValidate autoComplete="off">
+      {(props.id === "liquidity" && !token0) && <InputLabel className={classes.input} id="demo-simple-select-outlined-label">Select a Token</InputLabel>}
+      <Select
+        labelId="demo-simple-select-outlined-label"
+        id="demo-simple-select-outlined"
+        value={props.id === "token0" ? token0 : token1}
+        onChange={tokenChangeHandler}
+        label="token"
+        className={classes.select}
+      >
+        <MenuItem value=""><em>Select a token</em></MenuItem>
+        <MenuItem value={"BABYDOGE"}>
+          <TokenListItem src={babyDogeLogo} token="BabyDoge" alt="babyDogeLogo" />
+        </MenuItem>
+        <MenuItem value={"BABYTOY"}>
+          <TokenListItem src={babyToyLogo} token="BabyToy" alt="babyToyLogo" />
+        </MenuItem>
+        <MenuItem value={"BABYLEASH"}>
+          <TokenListItem src={babyLeashLogo} token="BabyLeash" alt="BabyLeash" />
+        </MenuItem>
+        {props.mode === "swap" && <MenuItem value={"BNB"}>
+          <TokenListItem src={BNBLogo} token="BNB" alt="BNBLogo" />
+        </MenuItem>}
+      </Select>
+    </FormControl>
+  );
 }
 
 export default SelectToken;

@@ -1,10 +1,10 @@
 import { createContext, useContext, useState } from 'react';
 
-const AddLiquidityContext = createContext();
+const SwapContext = createContext();
 
-export function AddLiquidityContextProvider(props) {
-    const [token0, setToken0] = useState({name: "token0", address: "", amount: 0, jsx: ""});
-    const [token1, setToken1] = useState({name: "BNB", address: "", amount: 0, jsx: ""});
+export function SwapContextProvider(props) {
+    const [token0, setToken0] = useState({name: "", address: "", amount: 0});
+    const [token1, setToken1] = useState({name: "", address: "", amount: 0});
 
     function token0ChangeHandler(token) {
         setToken0((previousData) => ({...previousData, ...token}));
@@ -21,12 +21,12 @@ export function AddLiquidityContextProvider(props) {
     };
 
     return (
-        <AddLiquidityContext.Provider value={accountState}>
+        <SwapContext.Provider value={accountState}>
             {props.children}
-        </AddLiquidityContext.Provider>
+        </SwapContext.Provider>
     );
 }
 
-export function useAddLiquidityContext() {
-    return useContext(AddLiquidityContext);
+export function useSwapContext() {
+    return useContext(SwapContext);
 }

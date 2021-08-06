@@ -106,7 +106,7 @@ function LiquidityCard(props) {
             <Typography className={styles["card-subtitle"]} variant="subtitle1">
                 {`Provide liquidity for ${liquidityContext.token0.name || "--"}/${liquidityContext.token1.name || "--"} in the community liquidity pool!`}
             </Typography>
-            <FormTokenInput />
+            <FormTokenInput mode={"liquidity"} />
             <UserInputButton onClick={addLiquidity} disabled={isDisabled} message={buttonMessage} />
         </div>
     );

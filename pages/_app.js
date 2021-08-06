@@ -1,6 +1,7 @@
 import React from "react";
 import { AuthContextProvider } from "../store/auth-context";
 import { AddLiquidityContextProvider } from "../store/addLiquidity-context";
+import { SwapContextProvider } from "../store/swap-context";
 
 import CssBaseline from '@material-ui/core/CssBaseline';
 
@@ -32,7 +33,9 @@ export default function MyApp(props) {
         <AuthContextProvider>
           <AppLayout />
           <AddLiquidityContextProvider>
-            <Component {...pageProps} />
+            <SwapContextProvider>
+              <Component {...pageProps} />
+            </SwapContextProvider>
           </AddLiquidityContextProvider>
         </AuthContextProvider>
     </React.Fragment>

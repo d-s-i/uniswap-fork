@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAddLiquidityContext } from "../../store/addLiquidity-context";
+import { useSwapContext } from "../../store/swap-context";
 import { useAuthContext } from "../../store/auth-context";
 
 import babyDoge from "../../ethereum/tokens/babyDoge";
@@ -11,19 +12,28 @@ import web3 from "../../ethereum/web3";
 import TokenInputAmount from "./TokenInputAmount";
 
 import { FormControl  } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import SwapVerticalCircleIcon from '@material-ui/icons/SwapVerticalCircle';
 
 import styles from "./FormTokenInput.module.css";
 
-
+const useStyles = makeStyles({
+    swapIcon: {
+        color: "#0ab5db", 
+        "&:hover": {cursor: "pointer"} 
+    }
+})
 
 function FormTokenInput(props) {
-
     
     const [balancesToken0, setBalancesToken0] = useState("");
     const [balancesToken1, setBalancesToken1] = useState("");
     
     const liquidityContext = useAddLiquidityContext();
+    const swapContext = useSwapContext();
     const authContext = useAuthContext();
+
+    const classes = useStyles();
     
     async function getBalances(tokenName) {
         const balanceAccount = await web3.eth.getAccounts();
@@ -39,16 +49,29 @@ function FormTokenInput(props) {
 
     useEffect(() => {
         async function test() {
-            setBalancesToken0(await getBalances(liquidityContext.token0.name));
-            setBalancesToken1(await getBalances("BNB")); 
+            if(props.mode === "liquidity") {
+                setBalancesToken0(await getBalances(liquidityContext.token0.name));
+                setBalancesToken1(await getBalances("BNB")); 
+            }
+            if(props.mode === "swap") {                
+                setBalancesToken0(await getBalances(swapContext.token0.name));
+                setBalancesToken1(await getBalances(swapContext.token1.name)); 
+            }
         }
         test();
-    }, [liquidityContext.token0, liquidityContext.token1]);
+    }, [liquidityContext.token0, liquidityContext.token1, swapContext.token0, swapContext.token1]);
+
+    function exchangeToken0WithToken1() {
+        const storeExchange = swapContext.token0;
+        swapContext.onToken0Change(swapContext.token1);
+        swapContext.onToken1Change(storeExchange);
+    }
     
     return(
         <FormControl noValidate autoComplete="off">
-            <TokenInputAmount id="token0" name="token0" balances={balancesToken0} defaultToken={""} />
-            <TokenInputAmount id="token1" name="token1" balances={balancesToken1} defaultToken={"BNB"} />
+            <TokenInputAmount mode={props.mode} id="token0" name="token0" balances={balancesToken0} defaultToken={""} />
+            {props.mode === "swap" && <div className={styles.middle} ><SwapVerticalCircleIcon className={classes.swapIcon} onClick={exchangeToken0WithToken1} /></div>}
+            <TokenInputAmount mode={props.mode} id="token1" name="token1" balances={balancesToken1} defaultToken={props.mode === "liquidity" ? "BNB" : ""} /> 
         </FormControl>
     );
 }
