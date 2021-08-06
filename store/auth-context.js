@@ -5,13 +5,11 @@ const AuthContext = createContext();
 
 export function AuthContextProvider(props) {
     const [accounts, setAccounts] = useState([]);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     async function loginHandler() {
             connectWeb3Handler();
             const addresses = await web3.eth.getAccounts();
             setAccounts(addresses);
-            setIsLoggedIn(true);
     }
 
     if(typeof(window) !== "undefined" && typeof(window.ethereum) !== "undefined") {
@@ -23,7 +21,6 @@ export function AuthContextProvider(props) {
     }
 
     let accountState = {
-        isLoggedIn: isLoggedIn,
         accounts: accounts,
         onLogin: loginHandler
     };

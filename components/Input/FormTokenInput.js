@@ -59,7 +59,7 @@ function FormTokenInput(props) {
             }
         }
         test();
-    }, [liquidityContext.token0, liquidityContext.token1, swapContext.token0, swapContext.token1]);
+    }, [liquidityContext.token0, liquidityContext.token1, swapContext.token0, swapContext.token1, authContext.accounts[0]]);
 
     function exchangeToken0WithToken1() {
         const storeExchange = swapContext.token0;
