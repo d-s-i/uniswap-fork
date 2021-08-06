@@ -1,4 +1,6 @@
 import React from "react";
+import { AuthContextProvider } from "../store/auth-context";
+import { AddLiquidityContextProvider } from "../store/addLiquidity-context";
 
 import CssBaseline from '@material-ui/core/CssBaseline';
 
@@ -27,8 +29,12 @@ export default function MyApp(props) {
           <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
         </Head>
         <CssBaseline />
-        <AppLayout />
-        <Component {...pageProps} />
+        <AuthContextProvider>
+          <AppLayout />
+          <AddLiquidityContextProvider>
+            <Component {...pageProps} />
+          </AddLiquidityContextProvider>
+        </AuthContextProvider>
     </React.Fragment>
   );
 }

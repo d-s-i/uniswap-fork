@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-
+import React from "react";
+import { useAppContext } from "../store/auth-context";
 
 import web3 from "../ethereum/web3";
 
@@ -58,13 +58,6 @@ export default function Home() {
       destination: "/liquidity",
     }
   ];
-
-  useEffect(() => {
-    async function login() {
-      await web3.eth.getAccounts();
-    }
-    login();
-  }, []);
 
   return (
     <AppCardMain main >

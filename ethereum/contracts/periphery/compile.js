@@ -84,6 +84,9 @@ compileContract(["./", "interfaces", "IUniswapV2Router02.sol"]);
 compileContract(["./", "interfaces", "IWETH.sol"]);
 
 compileContract(["./", "test", "ERC20.sol"]);
+compileContract(["./", "test", "BabyDoge.sol"]);
+compileContract(["./", "test", "BabyLeash.sol"]);
+compileContract(["./", "test", "BabyToy.sol"]);
 compileContract(["./", "test", "DeflatingERC20.sol"]);
 compileContract(["./", "test", "WETH9.sol"]);
 compileContract(["./", "test", "RouterEventEmitter.sol"]);
