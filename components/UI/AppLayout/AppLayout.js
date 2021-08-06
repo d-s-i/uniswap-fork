@@ -98,7 +98,7 @@ function AppLayout() {
         await context.onLogin();
     }
 
-    const buttonContent = context.isLoggedIn ? `${context.accounts[0].slice(0, 5)}...${context.accounts[0].slice(context.accounts[0].length - 5, context.accounts[0].length - 1)}` : "Login";
+    const buttonContent = context.accounts[0] ? `${context.accounts[0].slice(0, 5)}...${context.accounts[0].slice(context.accounts[0].length - 5, context.accounts[0].length - 1)}` : "Login";
 
     return(
         <AppBar position="static" className={styles.appbar} >
