@@ -138,10 +138,10 @@ function SelectToken(props) {
       </div>
     );  
   }
-  
+
   return(
     <FormControl variant="filled" className={classes.formControl} hiddenLabel={props.id === "token0" ? token0 ? true : false : token1 ? true : false} noValidate autoComplete="off">
-      {(props.id === "liquidity" && !token0) && <InputLabel className={classes.input} id="demo-simple-select-outlined-label">Select a Token</InputLabel>}
+      {(props.id === "token0" ? !token0 : !token1) && <InputLabel className={classes.input} id="demo-simple-select-outlined-label">Select a Token</InputLabel>}
       <Select
         labelId="demo-simple-select-outlined-label"
         id="demo-simple-select-outlined"
