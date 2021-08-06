@@ -13,3 +13,17 @@
     background: #0ab5db;
     color: #cccccc;
 }
+
+.button-disabled {
+    border-radius: 1em;
+    background: #4d4d4d;
+    color: #999999;
+    border: 2px #666666 solid;
+    font-size: 1.5em;
+    font-weight: bold;
+    padding: 3% 0 3% 0;
+}
+
+.button-disabled:hover {
+    cursor: not-allowed;
+}

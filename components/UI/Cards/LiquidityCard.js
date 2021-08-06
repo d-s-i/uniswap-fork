@@ -19,18 +19,37 @@ const ethToWei = (ethAmount) => web3.utils.toWei(`${ethAmount}`, "ether");
 function LiquidityCard(props) {
 
     const [buttonMessage, setButtonMessage] = useState("Add Liquidity");
+    const [isDisabled, setisDisabled] = useState(true);
 
     
     const liquidityContext = useAddLiquidityContext();
     const authContext = useAuthContext();
+
+    const tokenName = liquidityContext.token0.name;
+    const token0Amount = liquidityContext.token0.amount;
+    const token1Amount = liquidityContext.token1.amount;
     
     useEffect(() => {
         async function changeMessageHandler() {
-            const message = await checkAllowance(liquidityContext.token0.name) ? "Add Liquidity" : `Approve ${liquidityContext.token0.name}`;
+            const allowance = await checkAllowance(liquidityContext.token0.name);
+            let message;
+            if(allowance) {
+                message = "Add Liquidity";
+            }
+            if(!allowance) {
+                message = `Approve ${liquidityContext.token0.name}`;
+            }
+            if(!token0Amount) {
+                message = `Enter a ${tokenName} amount`;
+            }
+            if(!token1Amount) {
+                message = "Enter a BNB amount";
+            }
+            // const message = await checkAllowance(liquidityContext.token0.name) ? "Add Liquidity" : `Approve ${liquidityContext.token0.name}`;
             setButtonMessage(message);
         }
         changeMessageHandler();
-    }, [liquidityContext.token0])
+    }, [liquidityContext.token0, liquidityContext.token1])
 
 
     async function checkAllowance(token) {
@@ -56,15 +75,14 @@ function LiquidityCard(props) {
         const now = await web3.eth.getBlock(blockNumber);
         const deadline = now.timestamp + 10000;
 
-        const tokenName = liquidityContext.token0.name;
-        const token0Amount = liquidityContext.token0.amount;
         const allowed = await checkAllowance(tokenName);
 
         if(allowed && parseFloat(token0Amount) !== 0) {
             await router.methods
-            .addLiquidityETH(`${liquidityContext.token0.address}`, `${liquidityContext.token0.amount}`, `${liquidityContext.token0.amount}`, ethToWei(liquidityContext.token1.amount), accounts[0], deadline)
-            .send({ from: accounts[0], value: ethToWei(liquidityContext.token1.amount) });
+            .addLiquidityETH(`${liquidityContext.token0.address}`, `${liquidityContext.token0.amount}`, `${liquidityContext.token0.amount}`, ethToWei(token1Amount), accounts[0], deadline)
+            .send({ from: accounts[0], value: ethToWei(token1Amount) });
         }
+        console.log("executing!");
         if(!allowed && parseFloat(token0Amount) !== 0) {
             if(tokenName === "BABYDOGE") {
                 babyDoge.methods.approve(routerAddress, 2^256 - 1).send({ from: accounts[0] });
@@ -78,6 +96,10 @@ function LiquidityCard(props) {
         }
     }
 
+    useEffect(() => {
+        setisDisabled(parseFloat(token0Amount) === 0 || parseFloat(token1Amount) === 0 || token0Amount === "" || token1Amount === "");
+    }, [token0Amount, token1Amount]);
+
     return(
         <div className={styles["swap-container"]} >
             <Typography style={{ fontWeight: "bold" }} className={styles["card-title"]} variant="h4">Add Liquidity</Typography>
@@ -85,7 +107,7 @@ function LiquidityCard(props) {
                 {`Provide liquidity for ${liquidityContext.token0.name || "--"}/${liquidityContext.token1.name || "--"} in the community liquidity pool!`}
             </Typography>
             <FormTokenInput />
-            <UserInputButton onClick={addLiquidity} message={buttonMessage} />
+            <UserInputButton onClick={addLiquidity} disabled={isDisabled} message={buttonMessage} />
         </div>
     );
 }
