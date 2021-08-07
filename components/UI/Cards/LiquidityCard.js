@@ -79,10 +79,9 @@ function LiquidityCard(props) {
 
         if(allowed && parseFloat(token0Amount) !== 0) {
             await router.methods
-            .addLiquidityETH(`${liquidityContext.token0.address}`, `${liquidityContext.token0.amount}`, `${liquidityContext.token0.amount}`, ethToWei(token1Amount), accounts[0], deadline)
+            .addLiquidityETH(`${liquidityContext.token0.address}`, `${token0Amount}`, `${parseFloat(token0Amount)*0.95}`, ethToWei(parseFloat(token1Amount)*0.95), accounts[0], deadline)
             .send({ from: accounts[0], value: ethToWei(token1Amount) });
         }
-        console.log("executing!");
         if(!allowed && parseFloat(token0Amount) !== 0) {
             if(tokenName === "BABYDOGE") {
                 babyDoge.methods.approve(routerAddress, 2^256 - 1).send({ from: accounts[0] });

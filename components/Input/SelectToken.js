@@ -79,7 +79,7 @@ function SelectToken(props) {
   const babyDogeData = {name: "BABYDOGE", address: "0x010b3D7055e53847480FDBdA62771c6D74C76453"};
   const babyToyData = {name: "BABYTOY", address: "0xe150341e165379cbc8b5f5e0d46Eff220E318F45"};
   const babyLeashData = {name: "BABYLEASH", address: "0x6E78d42cCe7E83FEBfE9ed3Bb5f3074A6eEE7e7c"};
-  const bnbData = {name: "BNB", address: ""};
+  const bnbData = {name: "BNB", address: "0xc778417E063141139Fce010982780140Aa0cD5Ab"};
 
   function setData(tokenData) {
     if(props.id === "token0") {
@@ -160,9 +160,11 @@ function SelectToken(props) {
         <MenuItem value={"BABYLEASH"}>
           <TokenListItem src={babyLeashLogo} token="BabyLeash" alt="BabyLeash" />
         </MenuItem>
-        {props.mode === "swap" && <MenuItem value={"BNB"}>
-          <TokenListItem src={BNBLogo} token="BNB" alt="BNBLogo" />
-        </MenuItem>}
+        {props.mode === "swap" && (
+          <MenuItem value={"BNB"}>
+            <TokenListItem src={BNBLogo} token="BNB" alt="BNBLogo" />
+          </MenuItem>
+        )}
       </Select>
     </FormControl>
   );

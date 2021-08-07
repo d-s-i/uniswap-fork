@@ -14,6 +14,7 @@ import TokenInputAmount from "./TokenInputAmount";
 import { FormControl  } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import SwapVerticalCircleIcon from '@material-ui/icons/SwapVerticalCircle';
+import Typography from "@material-ui/core/Typography";
 
 import styles from "./FormTokenInput.module.css";
 
@@ -36,15 +37,17 @@ function FormTokenInput(props) {
     const classes = useStyles();
     
     async function getBalances(tokenName) {
-        const balanceAccount = await web3.eth.getAccounts();
-        if(tokenName === "BABYDOGE") return await babyDoge.methods.balanceOf(authContext.accounts[0]).call();
-        if(tokenName === "BABYTOY") return await babyToy.methods.balanceOf(authContext.accounts[0]).call();
-        if(tokenName === "BABYLEASH") return await babyLeash.methods.balanceOf(authContext.accounts[0]).call();
-        if(tokenName === "BNB") {
-            const BnbBalances =  await web3.utils.fromWei(await web3.eth.getBalance(balanceAccount[0]), "ether");
-            return (parseFloat(BnbBalances).toFixed(2));
+        if (authContext.accounts[0]) {
+            const balanceAccount = await web3.eth.getAccounts();
+            if(tokenName === "BABYDOGE") return await babyDoge.methods.balanceOf(authContext.accounts[0]).call();
+            if(tokenName === "BABYTOY") return await babyToy.methods.balanceOf(authContext.accounts[0]).call();
+            if(tokenName === "BABYLEASH") return await babyLeash.methods.balanceOf(authContext.accounts[0]).call();
+            if(tokenName === "BNB") {
+                const BnbBalances =  await web3.utils.fromWei(await web3.eth.getBalance(balanceAccount[0]), "ether");
+                return (parseFloat(BnbBalances).toFixed(2));
+            }
+            // if(tokenName === "ETH") return await web3.eth.getBalances().call();
         }
-        // if(tokenName === "ETH") return await web3.eth.getBalances().call();
     }
 
     useEffect(() => {
@@ -69,6 +72,7 @@ function FormTokenInput(props) {
     
     return(
         <FormControl noValidate autoComplete="off">
+            {!authContext.accounts[0] && <Typography variant="subtitle1" >Please connect to the Binance Smart Chain network</Typography>}
             <TokenInputAmount mode={props.mode} id="token0" name="token0" balances={balancesToken0} defaultToken={""} />
             {props.mode === "swap" && <div className={styles.middle} ><SwapVerticalCircleIcon className={classes.swapIcon} onClick={exchangeToken0WithToken1} /></div>}
             <TokenInputAmount mode={props.mode} id="token1" name="token1" balances={balancesToken1} defaultToken={props.mode === "liquidity" ? "BNB" : ""} /> 
