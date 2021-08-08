@@ -1,6 +1,10 @@
 import web3 from "../web3";
 import BabyToy from "../contracts/periphery/build/BabyToy.json";
 
-const babyToy = new web3.eth.Contract(BabyToy.abi, "0xe150341e165379cbc8b5f5e0d46Eff220E318F45");
+export const babyToyAddress = "0x8B3E4f6c30Ad417A07A6504677BFfBd749440b50";
+
+export const babyToyData = {name: "BABYTOY", address: babyToyAddress};
+
+const babyToy = new web3.eth.Contract(BabyToy.abi, babyToyAddress);
 
 export default babyToy;

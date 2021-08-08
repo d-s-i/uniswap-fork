@@ -3,8 +3,8 @@ import { createContext, useContext, useState } from 'react';
 const AddLiquidityContext = createContext();
 
 export function AddLiquidityContextProvider(props) {
-    const [token0, setToken0] = useState({name: "token0", address: "", amount: ""});
-    const [token1, setToken1] = useState({name: "BNB", address: "", amount: ""});
+    const [token0, setToken0] = useState({name: "token0", address: "", amount: "", approved: false});
+    const [token1, setToken1] = useState({name: "BNB", address: "", amount: "", approved: false});
 
     function token0ChangeHandler(token) {
         setToken0((previousData) => ({...previousData, ...token}));

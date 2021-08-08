@@ -99,10 +99,11 @@ describe("Use pool contracts", function() {
     //     await lpToken.methods.approve(routerAddress, liquidity).send({ from: accounts[0], gas: "1000000" });
     //     await router.methods.removeLiquidityETH(token1Address, `${liquidity}`, "29.9", ethToWei(30.9), accounts[0], deadline).send({ from: accounts[0], gas: "1000000" });
 
-    //     assert.ok(await token1.methods.balanceOf(poolAddress).call() < 30 && await WETH.methods.balanceOf(poolAddress).call() < ethToWei(5));
+    //     assert.ok(await token1.methods.balanceOf(poolAddress).call() < 30 && await WETH.methods.balanceOf(poolAddress).call() < ethToWei(30));
     // });
 
     it("recolt fees", async () => {
+        console.log(factory.methods);
 
         const [,amountOutEthToToken] = await router.methods.getAmountsOut(ethToWei(5), [wethAddress, token1Address]).call();
         
