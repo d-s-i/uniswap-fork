@@ -40,19 +40,16 @@ function SwapFormTokenInput(props) {
             if(tokenName === "BABYDOGE") {
                 const babyDogeWeiBalance = await babyDoge.methods.balanceOf(balanceAccount[0]).call();
                 const babyDogeBalance = convertWeiToEth(babyDogeWeiBalance.toString());
-                console.log("babydoge", babyDogeBalance);
                 return parseFloat(babyDogeBalance).toFixed(2);
             }
             if(tokenName === "BABYTOY") {
                 const babyToyWeiBalance = await babyToy.methods.balanceOf(balanceAccount[0]).call();
                 const babyToyBalance = convertWeiToEth(babyToyWeiBalance.toString());
-                console.log("babytoy", babyToyBalance);
                 return parseFloat(babyToyBalance).toFixed(2);
             }
             if(tokenName === "BABYLEASH") {
                 const babyLeashWeiBalance = await babyLeash.methods.balanceOf(balanceAccount[0]).call();
                 const babyLeashBalance = convertWeiToEth(babyLeashWeiBalance.toString());
-                console.log("babyleash", babyLeashBalance);
                 return parseFloat(babyLeashBalance).toFixed(2);
             }
             if(tokenName === "BNB") {

@@ -2,17 +2,18 @@ import React from "react";
 import { useAddLiquidityContext } from "../../store/addLiquidity-context";
 import { useSwapContext } from "../../store/swap-context";
 
+import { convertEthToWei, convertWeiToEth, getPaths } from "../../helpers/functionsHelper";
+import web3 from "../../ethereum/web3";
 import router from "../../ethereum/router";
 import compiledUniswapV2Pair from "../../ethereum/contracts/core/build/UniswapV2Pair.json";
 import factory from "../../ethereum/factory";
+import { wethAddress } from "../../ethereum/tokens/WETH";
 
 import SwapSelectToken from "./SwapSelectToken";
 import { Typography, makeStyles } from "@material-ui/core";
 
 import styles from "./SwapTokenInputAmount.module.css";
 
-import web3 from "../../ethereum/web3";
-import { convertEthToWei, convertWeiToEth } from "../../helpers/functionsHelper";
 
 const useStyles = makeStyles((theme) => ({
     swapBalance: {
@@ -28,14 +29,18 @@ function SwapTokenInputAmount(props) {
 
     async function tokenAmountChangeHandler(event) {
         const value = event.target.value;
-        if(props.id === "token0") {
+        if(props.id === "token0") {  
             swapContext.onToken0Change({amount: value});
             if(value !== "" && value.slice(-1) !== ".") {
                 try {
-                    const [,token1WeiAmount] = await router.methods.getAmountsOut(
+                    const rawPaths = getPaths(swapContext.token0.address, swapContext.token1.address);
+
+                    const amountsOut = await router.methods.getAmountsOut(
                         convertEthToWei(value), 
-                        [swapContext.token0.address, swapContext.token1.address]
+                        rawPaths
                     ).call(); 
+                    const token1WeiAmount = amountsOut.slice(-1); 
+
                     const token1Amount = convertWeiToEth(token1WeiAmount);
                     swapContext.onToken1Change({ amount: token1Amount });
                 } catch (error) {
@@ -47,10 +52,18 @@ function SwapTokenInputAmount(props) {
             swapContext.onToken1Change({amount: value});
             if(value !== "") {
                 try {
-                    const [token0WeiAmount,] = await router.methods.getAmountsIn(
+                    const rawPaths = getPaths(swapContext.token0.address, swapContext.token1.address);
+                    console.log(rawPaths);
+                    console.log(await factory.methods.getPair(swapContext.token0.address, swapContext.token1.address).call());
+                    
+                    const amountsIn = await router.methods.getAmountsIn(
                         convertEthToWei(value), 
-                        [swapContext.token0.address, swapContext.token1.address]
-                    ).call();
+                        rawPaths
+                    ).call(); 
+
+                    console.log(amountsIn);
+
+                    const token0WeiAmount = amountsIn[0]; 
                     const token0Amount = convertWeiToEth(token0WeiAmount);
                     swapContext.onToken0Change({ amount: token0Amount });
                 } catch(error) {
@@ -79,7 +92,7 @@ function SwapTokenInputAmount(props) {
                 <SwapSelectToken mode={props.mode} id={props.id} defaultToken={props.defaultToken} />
                 <input 
                     className={styles.input} 
-                    value={/*amount ? amount.lenght > 4 ? amount : Math.floor(amount * 10000) / 10000 : ""*/ amount ? amount : ""} 
+                    value={amount ? amount.lenght > 4 ? amount : Math.floor(amount * 10000) / 10000 : ""} 
                     onFocus={focusHandler} 
                     onChange={tokenAmountChangeHandler} 
                     type="text" 
