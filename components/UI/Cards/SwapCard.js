@@ -26,16 +26,16 @@ function SwapCard(props) {
         async function changeMessageHandler() {
             // if(!swapContext.token0.amount || !swapContext.token1.amount) return;
             let message;
-            if(Number.isNaN(parseFloat(swapContext.token0.amount))) {
-                message = `Please enter a valid ${swapContext.token0.name} amount`;
-                setButtonMessage(message);
-                return;
-            } 
-            if(Number.isNaN(parseFloat(swapContext.token1.amount))) {
-                message = `Please enter a valid ${swapContext.token1.name} amount`;
-                setButtonMessage(message);
-                return;
-            } 
+            // if(Number.isNaN(parseFloat(swapContext.token0.amount))) {
+            //     message = `Please enter a valid ${swapContext.token0.name} amount`;
+            //     setButtonMessage(message);
+            //     return;
+            // } 
+            // if(Number.isNaN(parseFloat(swapContext.token1.amount))) {
+            //     message = `Please enter a valid ${swapContext.token1.name} amount`;
+            //     setButtonMessage(message);
+            //     return;
+            // } 
             const isAllowed = await checkRouterAllowance(swapContext.token0.name, swapContext.token0.amount);
     
             if(isAllowed || swapContext.token0.name === "BNB") {
@@ -63,20 +63,21 @@ function SwapCard(props) {
 
         const isToken0Allowed = await checkRouterAllowance(swapContext.token0.name, swapContext.token0.amount);
 
-        if(!isToken0Allowed) {
+        if(!isToken0Allowed && swapContext.token0.name !== "BNB") {
             await approveTokens(swapContext.token0.name);
-            swapContext.onToken0Change({ approved : true }); // await keyword removed
+            swapContext.onToken0Change({ approved : true });
             return;
         }
 
         if(swapContext.token0.focus) {
             if(swapContext.token0.name === swapContext.token1.name) return;
             if(swapContext.token0.name === "BNB") {
+                console.log("inside the if of swap");
                 const amountOutMin = convertEthToWei(swapContext.token1.amount * (1 - slippage)) ; 
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);
 
                 await router.methods.swapExactETHForTokens(
-                    `${Math.trunc(amountOutMin)}`, 
+                    `${amountOutMin}`, 
                     paths, 
                     accounts[0], 
                     deadline
@@ -90,7 +91,7 @@ function SwapCard(props) {
 
                 await router.methods.swapExactTokensForETH(
                     `${amountIn}`, 
-                    `${Math.trunc(amountOutMin)}`, 
+                    `${amountOutMin}`, 
                     paths,
                     accounts[0],
                     deadline
