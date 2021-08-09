@@ -49,7 +49,7 @@ function LiquidityCard(props) {
             setButtonMessage(message);
         }
         changeMessageHandler();
-    }, [liquidityContext.token0, liquidityContext.token1])
+    }, [liquidityContext.token0.name, liquidityContext.token1.name]);
 
 
     async function checkRouterAllowance(token) {
@@ -83,8 +83,8 @@ function LiquidityCard(props) {
                 .addLiquidityETH(
                     `${liquidityContext.token0.address}`, 
                     `${convertEthToWei(token0Amount)}`, 
-                    `${convertEthToWei(token0Amount)/**(1-slippage)*/}`, // commented because  I have a problem, token0Amount is 1 wei when calculated from the quote function, so token0Amount*(1-slippage) === 0.5 wei ...
-                    convertEthToWei(token1Amount*(1-slippage)),  // need to resolve the quote problem and getting a real value
+                    `${Math.trunc(convertEthToWei(token0Amount*(1-slippage)))}`, // commented because  I have a problem, token0Amount is 1 wei when calculated from the quote function, so token0Amount*(1-slippage) === 0.5 wei ...
+                    `${Math.trunc(convertEthToWei(token1Amount*(1-slippage)))}`,  // need to resolve the quote problem and getting a real value
                     accounts[0], 
                     deadline)
                 .send({ 
@@ -103,7 +103,7 @@ function LiquidityCard(props) {
             if(tokenName === "BABYLEASH") {
                 await babyLeash.methods.approve(routerAddress, infinite).send({ from: accounts[0] });
             }
-            await liquidityContext.onToken0Change({ approved : true });
+            liquidityContext.onToken0Change({ approved : true });
         }
     }
 
