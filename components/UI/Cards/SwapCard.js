@@ -4,7 +4,7 @@ import { useSwapContext } from "../../../store/swap-context";
 
 import router from "../../../ethereum/router";
 import web3 from "../../../ethereum/web3";
-import { convertEthToWei, getPaths, checkRouterAllowance, approveTokens } from "../../../helpers/functionsHelper";
+import { convertEthToWei, getPaths, checkRouterAllowance, approveTokens, revokeTokens } from "../../../helpers/functionsHelper";
 
 import Typography from "@material-ui/core/Typography";
 import SwapFormTokenInput from "../../SwapInput/SwapFormTokenInput";
@@ -20,23 +20,21 @@ function SwapCard(props) {
 
     const slippage = 5/100;
 
+    // revokeTokens();
+
     useEffect(() => {
         async function changeMessageHandler() {
-            const isToken0Allowed = await checkRouterAllowance(swapContext.token0.name);
-            const isToken1Allowed = await checkRouterAllowance(swapContext.token1.name);
-            const isAllowed = isToken0Allowed && isToken1Allowed;
+            if(!swapContext.token0.amount || !swapContext.token1.amount) return;
+            const isAllowed = await checkRouterAllowance(swapContext.token0.name, swapContext.token0.amount);
             let message;
 
-            if(isAllowed) {
+            if(isAllowed || swapContext.token0.name === "BNB") {
                 message = "Swap";
             }
-            if(!isToken0Allowed) {
+            if(!isAllowed && swapContext.token0.name !== "BNB") {
                 message = `Approve ${swapContext.token0.name}`;
             }
-            if(!isToken1Allowed) {
-                message = `Approve ${swapContext.token1.name}`;
-            }
-            if(!swapContext.token0.amount) {
+            if(!swapContext.token0.amount ) {
                 message = `Enter a ${swapContext.token0.name} amount`;
             }
             if(!swapContext.token1.amount) {
@@ -45,7 +43,7 @@ function SwapCard(props) {
             setButtonMessage(message);
         }
         changeMessageHandler();
-    }, [swapContext.token0.name, swapContext.token1.name]);
+    }, [swapContext.token0, swapContext.token1]);
 
     async function swap() {
         const accounts = await web3.eth.getAccounts();
@@ -53,17 +51,11 @@ function SwapCard(props) {
         const now = await web3.eth.getBlock(blockNumber);
         const deadline = now.timestamp + 10000;
 
-        const isToken0Allowed = await checkRouterAllowance(swapContext.token0.name);
-        const isToken1Allowed = await checkRouterAllowance(swapContext.token1.name);
+        const isToken0Allowed = await checkRouterAllowance(swapContext.token0.name, swapContext.token0.amount);
 
         if(!isToken0Allowed) {
             await approveTokens(swapContext.token0.name);
             swapContext.onToken0Change({ approved : true }); // await keyword removed
-            return;
-        }
-        if(!isToken1Allowed) {
-            await approveTokens(swapContext.token1.name);
-            swapContext.onToken1Change({ approved : true }); // await keyword removed
             return;
         }
 
@@ -73,7 +65,6 @@ function SwapCard(props) {
                 const amountOutMin = convertEthToWei(swapContext.token1.amount * (1 - slippage)) ; 
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);
 
-                console.log("token0 name === BNB");
                 await router.methods.swapExactETHForTokens(
                     `${Math.trunc(amountOutMin)}`, 
                     paths, 
@@ -83,11 +74,9 @@ function SwapCard(props) {
             }
             if(swapContext.token1.name === "BNB") {
                 
-                // APPROVED ???
                 const amountIn = convertEthToWei(swapContext.token0.amount);
                 const amountOutMin = convertEthToWei(swapContext.token1.amount * (1 - slippage)) ;
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);
-                console.log("token1 name === BNB");
 
                 await router.methods.swapExactTokensForETH(
                     `${amountIn}`, 
@@ -101,7 +90,6 @@ function SwapCard(props) {
                 const amountIn = convertEthToWei(swapContext.token0.amount);
                 const amountOutMin = convertEthToWei(swapContext.token1.amount * (1 - slippage)) ; 
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);
-                console.log(amountIn, amountOutMin);
 
                 await router.methods.swapExactTokensForTokens(
                     `${amountIn}`, 

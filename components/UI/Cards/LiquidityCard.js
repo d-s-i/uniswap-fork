@@ -49,7 +49,7 @@ function LiquidityCard(props) {
             setButtonMessage(message);
         }
         changeMessageHandler();
-    }, [liquidityContext.token0.name, liquidityContext.token1.name]);
+    }, [liquidityContext.token0, liquidityContext.token1]);
 
 
     async function checkRouterAllowance(token) {
