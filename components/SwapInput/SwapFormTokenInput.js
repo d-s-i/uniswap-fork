@@ -20,12 +20,14 @@ import styles from "./SwapFormTokenInput.module.css";
 const useStyles = makeStyles({
     swapIcon: {
         color: "#0ab5db", 
-        "&:hover": {cursor: "pointer"} 
+        "&:hover": {
+            cursor: "pointer"
+        } 
     }
 });
 
 function SwapFormTokenInput(props) {
-    
+
     const [balancesToken0, setBalancesToken0] = useState("");
     const [balancesToken1, setBalancesToken1] = useState("");
     
@@ -36,27 +38,25 @@ function SwapFormTokenInput(props) {
     
     async function getBalances(tokenName) {
         if (authContext.accounts[0]) {
-            const balanceAccount = await web3.eth.getAccounts();
             if(tokenName === "BABYDOGE") {
-                const babyDogeWeiBalance = await babyDoge.methods.balanceOf(balanceAccount[0]).call();
+                const babyDogeWeiBalance = await babyDoge.methods.balanceOf(authContext.accounts[0]).call();
                 const babyDogeBalance = convertWeiToEth(babyDogeWeiBalance.toString());
                 return parseFloat(babyDogeBalance).toFixed(2);
             }
             if(tokenName === "BABYTOY") {
-                const babyToyWeiBalance = await babyToy.methods.balanceOf(balanceAccount[0]).call();
+                const babyToyWeiBalance = await babyToy.methods.balanceOf(authContext.accounts[0]).call();
                 const babyToyBalance = convertWeiToEth(babyToyWeiBalance.toString());
                 return parseFloat(babyToyBalance).toFixed(2);
             }
             if(tokenName === "BABYLEASH") {
-                const babyLeashWeiBalance = await babyLeash.methods.balanceOf(balanceAccount[0]).call();
+                const babyLeashWeiBalance = await babyLeash.methods.balanceOf(authContext.accounts[0]).call();
                 const babyLeashBalance = convertWeiToEth(babyLeashWeiBalance.toString());
                 return parseFloat(babyLeashBalance).toFixed(2);
             }
             if(tokenName === "BNB") {
-                const BnbBalances =  convertWeiToEth(await web3.eth.getBalance(balanceAccount[0]));
+                const BnbBalances =  convertWeiToEth(await web3.eth.getBalance(authContext.accounts[0]));
                 return (parseFloat(BnbBalances).toFixed(2));
             }
-            // if(tokenName === "ETH") return await web3.eth.getBalances().call();
         }
     }
 

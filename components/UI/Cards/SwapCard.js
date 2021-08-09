@@ -24,10 +24,20 @@ function SwapCard(props) {
 
     useEffect(() => {
         async function changeMessageHandler() {
-            if(!swapContext.token0.amount || !swapContext.token1.amount) return;
-            const isAllowed = await checkRouterAllowance(swapContext.token0.name, swapContext.token0.amount);
+            // if(!swapContext.token0.amount || !swapContext.token1.amount) return;
             let message;
-
+            if(Number.isNaN(parseFloat(swapContext.token0.amount))) {
+                message = `Please enter a valid ${swapContext.token0.name} amount`;
+                setButtonMessage(message);
+                return;
+            } 
+            if(Number.isNaN(parseFloat(swapContext.token1.amount))) {
+                message = `Please enter a valid ${swapContext.token1.name} amount`;
+                setButtonMessage(message);
+                return;
+            } 
+            const isAllowed = await checkRouterAllowance(swapContext.token0.name, swapContext.token0.amount);
+    
             if(isAllowed || swapContext.token0.name === "BNB") {
                 message = "Swap";
             }
