@@ -18,16 +18,15 @@ export function AuthContextProvider(props) {
             window.ethereum.on('accountsChanged', function () {
                 loginHandler();
             });
-            async function checkNetwork() {
-                const network = await web3.eth.net.getNetworkType();
-
-                if(network !== "rinkeby") {
+            window.ethereum.on('networkChanged', function(networkId){
+                console.log("in");
+                console.log(typeof(networkId));
+                if(networkId !== "4") {
                     setIsNetworkRight(false);
                 } else {
                     setIsNetworkRight(true);
                 }
-            }
-            checkNetwork();
+              });
         }, [window.ethereum]);
     }
 
