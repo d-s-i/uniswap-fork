@@ -4,7 +4,7 @@ import { useAuthContext } from "../../../store/auth-context";
 
 import web3 from "../../../ethereum/web3";
 
-import ModalContainer from "../Cards/ModalContainer";
+import NetworkModal from "../Modal/NetworkModal";
 import styles from "./AppLayout.module.css";
 
 import { AppBar, Toolbar, Typography, makeStyles, Button } from "@material-ui/core";
@@ -105,7 +105,6 @@ function AppLayout() {
     async function checkNetworkHandler() {
 
         const networkId = await web3.eth.net.getId();
-
         context.onNetworkChange(networkId);
     }
     
@@ -113,13 +112,7 @@ function AppLayout() {
 
     return(
         <AppBar position="static" className={classes.appbar} >
-            {!context.isNetworkRight && (
-                <div className={styles.backdrop} >
-                    <ModalContainer selector="#modal-root">
-                        <p className={styles.modal}>Please connect to the Rinkeby Network sir</p>
-                    </ModalContainer>
-                </div>
-            )}
+            {!context.isNetworkRight && <NetworkModal />}
             <Toolbar >
                 <Link href="/" passHref >
                     <div className={classes.menu} >

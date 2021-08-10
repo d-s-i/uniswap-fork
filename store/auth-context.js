@@ -18,17 +18,19 @@ export function AuthContextProvider(props) {
             window.ethereum.on('accountsChanged', function () {
                 loginHandler();
             });
-            window.ethereum.on('networkChanged', function(networkId){
+            window.ethereum.on('chainChanged', function(networkId){
+                // console.log("chainChainged:", typeof(networkId), "parseFloat:", parseFloat(networkId), "native", networkId);
                 onNetworkChange(networkId);
             });
         }, [window.ethereum]);
     }
 
     function onNetworkChange(networkId) {
-        if(parseFloat(networkId) !== 4) {
-            setIsNetworkRight(false);
-        } else {
+        if(parseFloat(networkId) === 4 || networkId === "0x4") {
             setIsNetworkRight(true);
+        }
+        else {
+            setIsNetworkRight(false);
         }
     }
 
