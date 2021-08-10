@@ -3,8 +3,8 @@ import { createContext, useContext, useState } from 'react';
 const SwapContext = createContext();
 
 export function SwapContextProvider(props) {
-    const [token0, setToken0] = useState({name: "", address: "", amount: "", focus: false, approved: false});
-    const [token1, setToken1] = useState({name: "", address: "", amount: "", focus: false, approved: false});
+    const [token0, setToken0] = useState({name: "", address: "", amount: "", focus: false, approved: false, balance: 0});
+    const [token1, setToken1] = useState({name: "", address: "", amount: "", focus: false, approved: false, balance: 0});
 
     function token0ChangeHandler(token) {
         setToken0((previousData) => ({...previousData, ...token}));

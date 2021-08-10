@@ -62,14 +62,20 @@ function SwapFormTokenInput(props) {
 
     useEffect(() => {
         async function updateBalances() {
-            setBalancesToken0(await getBalances(swapContext.token0.name));
-            setBalancesToken1(await getBalances(swapContext.token1.name)); 
+            const balanceToken0 = await getBalances(swapContext.token0.name);
+            const balanceToken1 = await getBalances(swapContext.token1.name);
+            swapContext.onToken0Change({balance: balanceToken0});
+            swapContext.onToken1Change({balance: balanceToken1});
+            setBalancesToken0(balanceToken0);
+            setBalancesToken1(balanceToken1); 
         }
         updateBalances();
-    }, [swapContext.token0, swapContext.token1, authContext.accounts[0]]);
+    }, [swapContext.token0.name, swapContext.token1.name, authContext.accounts[0]]);
 
     function exchangeToken0WithToken1() {
         const storeExchange = swapContext.token0;
+        // swapContext.onToken0Change({...swapContext.token1, focus: !swapContext.token1.focus});
+        // swapContext.onToken1Change({...storeExchange, focus: !storeExchange.focus});
         swapContext.onToken0Change(swapContext.token1);
         swapContext.onToken1Change(storeExchange);
     }
