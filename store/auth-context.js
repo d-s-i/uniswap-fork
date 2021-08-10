@@ -5,6 +5,7 @@ const AuthContext = createContext();
 
 export function AuthContextProvider(props) {
     const [accounts, setAccounts] = useState([]);
+    const [isNetworkRight, setIsNetworkRight] = useState(true);
 
     async function loginHandler() {
             connectWeb3Handler();
@@ -17,11 +18,22 @@ export function AuthContextProvider(props) {
             window.ethereum.on('accountsChanged', function () {
                 loginHandler();
             });
+            async function checkNetwork() {
+                const network = await web3.eth.net.getNetworkType();
+
+                if(network !== "rinkeby") {
+                    setIsNetworkRight(false);
+                } else {
+                    setIsNetworkRight(true);
+                }
+            }
+            checkNetwork();
         }, [window.ethereum]);
     }
 
     let accountState = {
         accounts: accounts,
+        isNetworkRight: isNetworkRight,
         onLogin: loginHandler
     };
 

@@ -175,7 +175,6 @@ function SwapTokenInputAmount(props) {
                         convertEthToWei(swapContext.token1.balance), 
                         rawPaths
                     ).call(); 
-                    console.log(amountsIn);
     
                     const token0WeiAmount = amountsIn[0]; 
                     const token0Amount = convertWeiToEth(token0WeiAmount);

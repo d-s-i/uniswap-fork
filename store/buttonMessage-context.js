@@ -18,10 +18,8 @@ export function ButtonContextProvider(props) {
 
     async function changeMessageHandler(errorMessage) {
         let message;
-        // console.log(errorMessage);
         if(errorMessage) {
             message = errorMessage;
-            console.log("message:", message);
             setButtonMessage(message);
             setIsDisabled(true);
             return;

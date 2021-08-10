@@ -1,6 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuthContext } from "../../../store/auth-context";
+
+import ModalContainer from "../Cards/ModalContainer";
+import styles from "./AppLayout.module.css";
 
 import web3 from "../../../ethereum/web3";
 import { connectWeb3 } from "../../../ethereum/web3";
@@ -13,8 +16,9 @@ import Image from "next/image";
 
 import babyDogeLogo from "../../../public/babyDogeLogo.png";
 
-function AppLayout() {
 
+function AppLayout() {
+    
     const context = useAuthContext();
 
     const theme = useTheme();
@@ -89,7 +93,7 @@ function AppLayout() {
         context.onLogin();
     }, []);
 
-    const styles = useStyles();
+    const classes = useStyles();
 
     const md = useMediaQuery(theme.breakpoints.up("md"));
     const lg = useMediaQuery(theme.breakpoints.up("lg"));
@@ -101,23 +105,30 @@ function AppLayout() {
     const buttonContent = context.accounts[0] ? `${context.accounts[0].slice(0, 5)}...${context.accounts[0].slice(context.accounts[0].length - 5, context.accounts[0].length - 1)}` : "Login";
 
     return(
-        <AppBar position="static" className={styles.appbar} >
+        <AppBar position="static" className={classes.appbar} >
+            {!context.isNetworkRight && (
+                <div className={styles.backdrop} >
+                    <ModalContainer selector="#modal-root">
+                        <p className={styles.modal}>Please connect to the Rinkeby Network sir</p>
+                    </ModalContainer>
+                </div>
+            )}
             <Toolbar >
                 <Link href="/" passHref >
-                    <div className={styles.menu} >
+                    <div className={classes.menu} >
                         <Image src={babyDogeLogo} width={50} height={50} alt="logo" />
-                        <Typography variant="h4" className={styles.brandName} style={{ fontWeight: "bold" }} >BabyDogeSwap</Typography>
+                        <Typography variant="h4" className={classes.brandName} style={{ fontWeight: "bold" }} >BabyDogeSwap</Typography>
                     </div >
                 </Link>
-                <div className={styles.left} >
-                    {lg && <Button disableRipple className={styles.priceButton} variant="contained" >{`${"BabyDoge"} $${"0.00000125"}`}</Button>}
-                    {lg && <Button disableRipple className={styles.priceButton} variant="contained" >{`${"BabyLeash"} $${"0.0000625"}`}</Button>}
-                    {lg && <Button disableRipple className={styles.priceButton} variant="contained" >{`${"BabyDoge"} $${"101.12"}`}</Button>}
-                    {md && !lg && <Button disableRipple className={styles.priceButton} variant="contained" style={{fontSize: "0.7em"}}>{`${"BabyDoge"} $${"0.00000125"}`}</Button>}
-                    {md && !lg && <Button disableRipple className={styles.priceButton} variant="contained" style={{fontSize: "0.7em"}}>{`${"BabyLeash"} $${"0.0000625"}`}</Button>}
-                    {md && !lg && <Button disableRipple className={styles.priceButton} variant="contained" style={{fontSize: "0.7em"}}>{`${"BabyDoge"} $${"101.12"}`}</Button>}
-                    <Button className={styles.loginButton} variant="contained" onClick={loginHandler} style={{textTransform: "lowercase"}} >
-                        <Typography className={styles.fontButton} >{buttonContent}</Typography>
+                <div className={classes.left} >
+                    {lg && <Button disableRipple className={classes.priceButton} variant="contained" >{`${"BabyDoge"} $${"0.00000125"}`}</Button>}
+                    {lg && <Button disableRipple className={classes.priceButton} variant="contained" >{`${"BabyLeash"} $${"0.0000625"}`}</Button>}
+                    {lg && <Button disableRipple className={classes.priceButton} variant="contained" >{`${"BabyDoge"} $${"101.12"}`}</Button>}
+                    {md && !lg && <Button disableRipple className={classes.priceButton} variant="contained" style={{fontSize: "0.7em"}}>{`${"BabyDoge"} $${"0.00000125"}`}</Button>}
+                    {md && !lg && <Button disableRipple className={classes.priceButton} variant="contained" style={{fontSize: "0.7em"}}>{`${"BabyLeash"} $${"0.0000625"}`}</Button>}
+                    {md && !lg && <Button disableRipple className={classes.priceButton} variant="contained" style={{fontSize: "0.7em"}}>{`${"BabyDoge"} $${"101.12"}`}</Button>}
+                    <Button className={classes.loginButton} variant="contained" onClick={loginHandler} style={{textTransform: "lowercase"}} >
+                        <Typography className={classes.fontButton} >{buttonContent}</Typography>
                     </Button>
                 </div>
             </Toolbar>

@@ -1,7 +1,4 @@
 import React from "react";
-import { useAppContext } from "../store/auth-context";
-
-import web3 from "../ethereum/web3";
 
 import DescriptionCard from "../components/DescriptionCard/DescriptionCard";
 import PlateformDescription from "../components/Presentation/PlateformDescription";
@@ -11,6 +8,7 @@ import AppCardMain from "../components/UI/Cards/AppCardMain";
 import FiberNewSharpIcon from '@material-ui/icons/FiberNewSharp';
 import Footer from "../components/UI/Footer/Footer";
 import BabyToyDescription from "../components/Presentation/BabyToyDescription";
+import { SettingsInputComponentRounded } from "@material-ui/icons";
 
 export default function Home() {
 
