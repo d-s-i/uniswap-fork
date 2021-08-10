@@ -19,20 +19,28 @@ export function AuthContextProvider(props) {
                 loginHandler();
             });
             window.ethereum.on('networkChanged', function(networkId){
-                console.log("in");
                 console.log(typeof(networkId));
-                if(networkId !== "4") {
+                if(parseFloat(networkId) !== 4) {
                     setIsNetworkRight(false);
                 } else {
                     setIsNetworkRight(true);
                 }
-              });
+            });
         }, [window.ethereum]);
+    }
+
+    function onNetworkChange(networkId) {
+        if(networkId !== 4) {
+            setIsNetworkRight(false);
+        } else {
+            setIsNetworkRight(true);
+        }
     }
 
     let accountState = {
         accounts: accounts,
         isNetworkRight: isNetworkRight,
+        onNetworkChange: onNetworkChange,
         onLogin: loginHandler
     };
 

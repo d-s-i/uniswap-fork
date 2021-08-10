@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuthContext } from "../../../store/auth-context";
 
+import web3 from "../../../ethereum/web3";
+
 import ModalContainer from "../Cards/ModalContainer";
 import styles from "./AppLayout.module.css";
-
-import web3 from "../../../ethereum/web3";
-import { connectWeb3 } from "../../../ethereum/web3";
 
 import { AppBar, Toolbar, Typography, makeStyles, Button } from "@material-ui/core";
 import { useTheme } from "@material-ui/core/styles";
@@ -20,6 +19,7 @@ import babyDogeLogo from "../../../public/babyDogeLogo.png";
 function AppLayout() {
     
     const context = useAuthContext();
+    const [isNetworkRight, setIsNetworkRight] = useState(true);
 
     const theme = useTheme();
 
@@ -102,6 +102,13 @@ function AppLayout() {
         await context.onLogin();
     }
 
+    async function checkNetworkHandler() {
+
+        const networkId = await web3.eth.net.getId();
+
+        context.onNetworkChange(networkId);
+    }
+    
     const buttonContent = context.accounts[0] ? `${context.accounts[0].slice(0, 5)}...${context.accounts[0].slice(context.accounts[0].length - 5, context.accounts[0].length - 1)}` : "Login";
 
     return(
@@ -116,7 +123,7 @@ function AppLayout() {
             <Toolbar >
                 <Link href="/" passHref >
                     <div className={classes.menu} >
-                        <Image src={babyDogeLogo} width={50} height={50} alt="logo" />
+                        <Image onLoad={checkNetworkHandler} src={babyDogeLogo} width={50} height={50} alt="logo" />
                         <Typography variant="h4" className={classes.brandName} style={{ fontWeight: "bold" }} >BabyDogeSwap</Typography>
                     </div >
                 </Link>
