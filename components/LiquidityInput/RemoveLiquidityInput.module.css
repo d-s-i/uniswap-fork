@@ -1,0 +1,35 @@
+.card-title {
+    color: #0ab5db;
+    padding-bottom: 3%;
+}
+
+.card-subtitle {
+    padding-bottom: 5%;
+}
+
+.amounts {
+    color: white;
+}
+
+.display-arrow {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 3%;
+}
+
+.choose-token {
+    display: flex;
+    justify-content: space-around;
+    margin: 5% 0 5% 0;
+}
+
+.token-button:hover {
+    cursor: pointer;
+}
+
+.choose-amount {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 5% 0 5% 0;
+}

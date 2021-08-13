@@ -4,22 +4,84 @@ import { useAuthContext } from "../../../store/auth-context";
 
 import web3 from "../../../ethereum/web3";
 import router, { routerAddress } from "../../../ethereum/router";
+import factory from "../../../ethereum/factory";
+import compiledERC20 from "../../../ethereum/contracts/core/build/ERC20.json";
 import babyDoge from "../../../ethereum/tokens/babyDoge";
 import babyToy from "../../../ethereum/tokens/babyToy";
 import babyLeash from "../../../ethereum/tokens/babyLeash";
-import { convertEthToWei } from "../../../helpers/functionsHelper";
+import { wethAddress } from "../../../ethereum/tokens/WETH";
+import { convertEthToWei, checkRouterAllowance, approveTokens } from "../../../helpers/functionsHelper";
 
 import Typography from "@material-ui/core/Typography";
-import LiquidityFormTokenInput from "../../LiquidityInput/LiquidityFormTokenInput";
-import UserInputButton from "../Buttons/UserInputButton";
+import Switch from '@material-ui/core/Switch';
+import Grid from "@material-ui/core/Grid";
+import { withStyles, makeStyles } from "@material-ui/core/styles";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
+import AddLiquidityUI from "../../LiquidityInput/AddLiquidityUI";
+import RemoveLiquidityInput from "../../LiquidityInput/RemoveLiquidityInput";
 
 import styles from "./LiquidityCard.module.css";
+import React from "react";
+
+const PurpleSwitch = withStyles({
+    root: {
+        width: "80px",
+        height: "50px"
+    },
+    thumb: {
+        width: 30,
+        height: 30,
+      },
+    switchBase: {
+        color: "#0ab5db",
+        // padding: "30px",
+        margin: "0",
+        padding: "10px",
+        '&$checked': {
+            color: "#0ab5db",
+            transform: 'translateX(30px)',
+        },
+        '&$checked + $track': {
+            backgroundColor: "white",
+        },
+    },
+    checked: {},
+    track: {
+        backgroundColor: "white",
+        borderRadius: "10em"
+    },
+  })(Switch);
+
+  const useStyles = makeStyles({
+      liquidityButton: {
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          alignContent: "center",
+          fontWeight: "bold"
+      },
+      liquidityIcon: {
+          marginRight: "10px"
+      },
+      tab: {
+          textDecoration: "underline",
+          color: "#0ab5db",
+          fontWeight: "bold"
+      }
+  });
 
 function LiquidityCard(props) {
 
     const [buttonMessage, setButtonMessage] = useState("Add Liquidity");
-    const [isDisabled, setisDisabled] = useState(true);
+    const [isDisabled, setIsDisabled] = useState(true);
+    const [toogleState, setToogleState] = useState(false);
 
+    const classes = useStyles();
+
+    function handleChange() {
+        setToogleState((prevState) => setToogleState(!prevState));
+    };
     
     const liquidityContext = useAddLiquidityContext();
     const authContext = useAuthContext();
@@ -29,113 +91,48 @@ function LiquidityCard(props) {
     const token1Amount = liquidityContext.token1.amount;
 
     const slippage = 50 / 100;
+
+    async function getButtonMessage() {
+        const isAllowed = await checkRouterAllowance(liquidityContext.token0.name, liquidityContext.token0.amount);
+        if(tokenName === "token0") return "Select a token";
+        if(isAllowed) return `${toogleState ? "Remove" : "Add"} Liquidity`;
+        if(!token0Amount) return `Enter a ${tokenName} amount`;
+        if(!token1Amount) return "Enter a BNB amount";
+        if(!isAllowed && tokenName) return `Approve ${tokenName}`;
+    }
     
     useEffect(() => {
         async function changeMessageHandler() {
-            const isAllowed = await checkRouterAllowance(liquidityContext.token0.name);
-            let message;
-            if(isAllowed) {
-                message = "Add Liquidity";
-            }
-            if(!isAllowed) {
-                message = `Approve ${liquidityContext.token0.name}`;
-            }
-            if(!token0Amount) {
-                message = `Enter a ${tokenName} amount`;
-            }
-            if(!token1Amount) {
-                message = "Enter a BNB amount";
-            }
-            setButtonMessage(message);
+            const buttonIcon = <AddCircleOutlinedIcon className={classes.liquidityIcon} />;
+            const message = await getButtonMessage();
+
+            setButtonMessage(
+                <Typography variant="h6" component="div" className={classes.liquidityButton} >
+                    <Typography variant="h6" className={classes.liquidityButton} >{buttonIcon}</Typography>
+                    {message}
+                </Typography>);
         }
         changeMessageHandler();
-    }, [liquidityContext.token0, liquidityContext.token1]);
-
-
-    async function checkRouterAllowance(token) {
-        if(token0Amount !== "") {
-            if(token === "BABYDOGE") {
-                const allowance = await babyDoge.methods.allowance(authContext.accounts[0], routerAddress).call();
-                return parseFloat(allowance) > parseFloat(convertEthToWei(token0Amount));
-            }
-            if(token === "BABYTOY") {
-                const allowance = await babyToy.methods.allowance(authContext.accounts[0], routerAddress).call();
-                return parseFloat(allowance) > parseFloat(convertEthToWei(token0Amount));
-            }
-            if(token === "BABYLEASH") {
-                const allowance = await babyLeash.methods.allowance(authContext.accounts[0], routerAddress).call();
-                return parseFloat(allowance) > parseFloat(convertEthToWei(token0Amount));
-            }
-        }
-    }
-
-    async function addLiquidity() {
-        const accounts = await web3.eth.getAccounts();
-
-        const blockNumber = await web3.eth.getBlockNumber();
-        const now = await web3.eth.getBlock(blockNumber);
-        const deadline = now.timestamp + 10000;
-
-        const isRouterAllowed = await checkRouterAllowance(tokenName);
-
-        if(isRouterAllowed && token0Amount !== 0) {
-            await router.methods
-                .addLiquidityETH(
-                    `${liquidityContext.token0.address}`, 
-                    `${convertEthToWei(token0Amount)}`, 
-                    `${Math.trunc(convertEthToWei(token0Amount*(1-slippage)))}`, // commented because  I have a problem, token0Amount is 1 wei when calculated from the quote function, so token0Amount*(1-slippage) === 0.5 wei ...
-                    `${Math.trunc(convertEthToWei(token1Amount*(1-slippage)))}`,  // need to resolve the quote problem and getting a real value
-                    accounts[0], 
-                    deadline)
-                .send({ 
-                        from: accounts[0], 
-                        value: convertEthToWei(token1Amount) 
-                    }); // AJOUTER DU SLIPPAGE DYNAMIQUE
-        }
-        if(!isRouterAllowed && parseFloat(token0Amount) !== 0) {
-            const infinite = BigInt(2**256) - BigInt(1);
-            if(tokenName === "BABYDOGE") {
-                await babyDoge.methods.approve(routerAddress, infinite).send({ from: accounts[0] });
-            }
-            if(tokenName === "BABYTOY") {
-                await babyToy.methods.approve(routerAddress, infinite).send({ from: accounts[0] });
-            }
-            if(tokenName === "BABYLEASH") {
-                await babyLeash.methods.approve(routerAddress, infinite).send({ from: accounts[0] });
-            }
-            liquidityContext.onToken0Change({ approved : true });
-        }
-    }
+    }, [liquidityContext.token0, liquidityContext.token1, toogleState]);
 
     useEffect(() => {
-        setisDisabled(parseFloat(token0Amount) === 0 || parseFloat(token1Amount) === 0 || token0Amount === "" || token1Amount === "");
+        setIsDisabled(parseFloat(token0Amount) === 0 || parseFloat(token1Amount) === 0 || token0Amount === "" || token1Amount === "");
     }, [token0Amount, token1Amount]);
 
-    // async function removeLiquidity() {
-    //     const poolAddress = "0xffC80955188962146C53aB98eb3E409D8A17c7D0";
-    //     const babyDogeAddress = "0x76c51246641F711aAAe87C8Ef2C95da186798FB2";
-    //     const lpToken = await new web3.eth.Contract(compiledERC20.abi, poolAddress);
-    //     const liquidity = await lpToken.methods.balanceOf(authContext.accounts[0]).call();
-    //     const allowance = await lpToken.methods.allowance(authContext.accounts[0], routerAddress).call();
-    //     if(parseFloat(allowance) < parseFloat(liquidity)) {
-    //         await lpToken.methods.approve(routerAddress, convertEthToWei(2^256 - 1)).send({ from: authContext.accounts[0] });
-    //     }
-    //     const blockNumber = await web3.eth.getBlockNumber();
-    //     const now = await web3.eth.getBlock(blockNumber);
-    //     const deadline = await now.timestamp + 10000;
-    //     await router.methods.removeLiquidityETH(babyDogeAddress, liquidity , "0", web3.utils.toWei("1", "ether"), authContext.accounts[0], deadline).send({ from: authContext.accounts[0] })
-    // }
-
     return(
-        <div className={styles["swap-container"]} >
-            <Typography style={{ fontWeight: "bold" }} className={styles["card-title"]} variant="h4">Add Liquidity</Typography>
-            <Typography className={styles["card-subtitle"]} variant="subtitle1">
-                {`Provide liquidity for ${liquidityContext.token0.name || "--"}/${liquidityContext.token1.name || "--"} in the community liquidity pool!`}
+        <React.Fragment>
+            <Typography component="div">
+                <Grid component="label" container justifyContent="center" alignItems="center" spacing={1}  >
+                    <Grid item className={toogleState ? "" : classes.tab} >Add liquidity</Grid>
+                        <FormControlLabel
+                            style={{ margin: "0" }} control={<PurpleSwitch size="medium" checked={toogleState} onChange={handleChange} name="checkedA" />}
+                        />
+                    <Grid item className={toogleState ? classes.tab : ""} >Remove liquidity</Grid>
+                </Grid>
             </Typography>
-            <LiquidityFormTokenInput />
-            <UserInputButton onClick={addLiquidity} disabled={isDisabled} message={buttonMessage} />
-            {/* <button onClick={removeLiquidity} >remove</button> */}
-        </div>
+            {!toogleState && <AddLiquidityUI toogle={toogleState} isDisabled={isDisabled} buttonMessage={buttonMessage} />}
+            {toogleState && <RemoveLiquidityInput />}
+        </React.Fragment>
     );
 }
 

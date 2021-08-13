@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useSwapContext } from "../../store/swap-context";
 import { useButtonContext } from "../../store/buttonMessage-context";
 
-import { convertEthToWei, convertWeiToEth, getPaths } from "../../helpers/functionsHelper";
+import { convertEthToWei, convertWeiToEth, getPaths, checkInput } from "../../helpers/functionsHelper";
 import web3 from "../../ethereum/web3";
 import router from "../../ethereum/router";
 import compiledUniswapV2Pair from "../../ethereum/contracts/core/build/UniswapV2Pair.json";
@@ -30,21 +30,12 @@ function SwapTokenInputAmount(props) {
     const classes = useStyles();
 
     async function tokenAmountChangeHandler(event) {
-        async function checkInput(input) {
-            if(input.slice(-1) === ",") return(`${input.slice(0, -1)}.`);
-            if(input === "0") {
-                swapContext.onToken0Change({ amount: "" });
-                swapContext.onToken1Change({ amount: "" });
-                return;
-            }
-            return input;
-        }
 
         const enteredValue = await checkInput(event.target.value);
         
         if(props.id === "token0") {  
             swapContext.onToken0Change({ amount: enteredValue });
-            if(Number.isNaN(Number(enteredValue))) return;
+            if(enteredValue.slice(-1) === "." || enteredValue === "0") return;
             if(enteredValue !== "" && enteredValue.slice(-1) !== "." && parseFloat(enteredValue) !== 0) {
                 try {
                     const rawPaths = getPaths(swapContext.token0.address, swapContext.token1.address);
@@ -64,7 +55,7 @@ function SwapTokenInputAmount(props) {
         }
         if(props.id === "token1") {
             swapContext.onToken1Change({ amount: enteredValue });
-            if(Number.isNaN(Number(enteredValue))) return;
+            if(enteredValue.slice(-1) === "." || enteredValue === "0") return;
             if(enteredValue !== "" && enteredValue.slice(-1) !== "." && parseFloat(enteredValue) !== 0) {
                 try {
                     const rawPaths = getPaths(swapContext.token0.address, swapContext.token1.address);

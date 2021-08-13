@@ -19,7 +19,7 @@ export function getPaths(token0Address, token1Address) {
     if(token0Address !== wethAddress && token1Address !== wethAddress) return [token0Address, wethAddress, token1Address];
 }
 
-export async function checkRouterAllowance(tokenName, tokenAmount, account) {
+export async function checkRouterAllowance(tokenName, tokenAmount) {
     const accounts = await web3.eth.getAccounts();
 
     if(tokenName === "BABYDOGE") {
@@ -36,7 +36,7 @@ export async function checkRouterAllowance(tokenName, tokenAmount, account) {
     }
 }
 
-export async function approveTokens(tokenName, account) {
+export async function approveTokens(tokenName) {
     const infinite = BigInt(2**256) - BigInt(1);
     const accounts = await web3.eth.getAccounts();
 
@@ -49,6 +49,16 @@ export async function approveTokens(tokenName, account) {
     if(tokenName === "BABYLEASH") {
         await babyLeash.methods.approve(routerAddress, infinite).send({ from: accounts[0] });
     }
+}
+
+export async function checkInput(input) {
+    if(input.slice(-1) === ",") return(`${input.slice(0, -1)}.`);
+    // if(input === "0") {
+    //     swapContext.onToken0Change({ amount: "" });
+    //     swapContext.onToken1Change({ amount: "" });
+    //     return;
+    // }
+    return input;
 }
 
 // export async function revokeTokens() {

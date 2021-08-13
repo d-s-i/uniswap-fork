@@ -1,0 +1,7 @@
+.inside-sub-card {
+    border-radius: 5px;
+    background-color: rgba(38, 38, 38, 50);
+    border: 1px #404040 solid;
+    margin: 0 0 3% 0;
+    padding: 3% 5% 3% 5%; 
+}
