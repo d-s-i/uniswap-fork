@@ -28,3 +28,19 @@
 .input:focus {
     outline: none;
 }
+
+.max-button {
+    background-color: #1a1a1a;
+    color: #cccccc;
+    border: 1px #cccccc solid;
+    border-radius: 3px;
+}
+
+.max-button:hover {
+    cursor: pointer;
+    background-color: #333333;
+}
+
+.displayBalances {
+    display: flex;
+}

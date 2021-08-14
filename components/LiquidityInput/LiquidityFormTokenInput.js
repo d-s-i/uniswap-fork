@@ -50,11 +50,15 @@ function LiquidityFormTokenInput(props) {
 
     useEffect(() => {
         async function updateBalances() {
-            setBalancesToken0(await getBalances(liquidityContext.token0.name));
-            setBalancesToken1(await getBalances("BNB")); 
+            const balanceToken0 = await getBalances(liquidityContext.token0.name);
+            const balanceToken1 = await getBalances("BNB");
+            liquidityContext.onToken0Change({balance: balanceToken0});
+            liquidityContext.onToken1Change({balance: balanceToken1});
+            setBalancesToken0(balanceToken0);
+            setBalancesToken1(balanceToken1); 
         }
         updateBalances();
-    }, [liquidityContext.token0, liquidityContext.token1, authContext.accounts[0]]);
+    }, [liquidityContext.token0.name, liquidityContext.token1.name, authContext.accounts[0]]);
     
     return(
         <FormControl noValidate autoComplete="off">
