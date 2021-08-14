@@ -4,6 +4,7 @@ import Image from "next/image";
 import SubCard from "../UI/Cards/SubCard";
 import InsideSubCard from "../UI/Cards/InsideSubCard";
 import UserInputButton from "../UI/Buttons/UserInputButton";
+import TransactionModal from "../UI/Modal/TransactionModal";
 
 import { babyDogeAddress } from "../../ethereum/tokens/babyDoge";
 import { babyLeashAddress } from "../../ethereum/tokens/babyLeash";
@@ -96,12 +97,17 @@ function RemoveLiquidityInput(props) {
     const [liquidityToRemove, setLiquidityToRemove] = useState("");
     const [buttonMessage, setButtonMessage] = useState("Add Liquidity");
     const [isDisabled, setIsDisabled] = useState(false);
+    const [isLoading, setIsLoading] = useState({state: false, message: ""});
 
     const [percentageLPToken, setPercentageLPToken] = useState(initialValue);
     
     const authContext = useAuthContext();
 
     const classes = useStyles();
+
+    function closeModalHandler() {
+        setIsLoading({state: false, message: ""});
+    }
   
     function changePercentageHandler(event, value) {
         setPercentageLPToken(value);
@@ -237,7 +243,11 @@ function RemoveLiquidityInput(props) {
                 `${BigInt(token1Amount * (1 - slippage))}`,
                 authContext.accounts[0],
                 deadline
-            ).send({ from: authContext.accounts[0] });
+            ).send({ from: authContext.accounts[0] }).on("transactionHash", function(hash) {
+                setIsLoading({state: true, message: `Your transaction is being processed here ${hash} Please wait.`});
+                }).once("confirmation", function(confirmationNumber, receipt) {
+                    setIsLoading({state: true, message: `Your transaction have been confirmed! You can see all the details here ${receipt.blockHash}.`});
+            });
         }
     }
 
@@ -247,6 +257,7 @@ function RemoveLiquidityInput(props) {
 
     return(
         <SubCard>
+            {isLoading.state && <TransactionModal onCloseModal={closeModalHandler} message={isLoading.message} />}
             <Typography style={{ fontWeight: "bold" }} className={styles["card-title"]} variant="h4">Remove Liquidity</Typography>
             <Typography className={styles["card-subtitle"]} variant="subtitle1">{token.name ? `Remove liquidity for ${token.name }` : <Typography variant="subtitle1" className={classes.selectAToken}>Select a token below</Typography>}</Typography>
             <InsideSubCard>

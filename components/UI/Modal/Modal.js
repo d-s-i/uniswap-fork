@@ -1,11 +1,11 @@
 import ModalContainer from "./ModalContainer";
-import styles from "./NetworkModal.module.css";
+import styles from "./Modal.module.css";
 
-function NetworkModal() {
+function NetworkModal(props) {
     return (
         <div className={styles.backdrop} >
             <ModalContainer selector="#modal-root">
-                <p className={styles.modal}>Please connect to the Rinkeby Network sir</p>
+                <p className={styles.modal}>{props.message}</p>
             </ModalContainer>
         </div>
     )

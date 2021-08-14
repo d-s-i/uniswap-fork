@@ -4,7 +4,7 @@ import { useAuthContext } from "../../../store/auth-context";
 
 import web3 from "../../../ethereum/web3";
 
-import NetworkModal from "../Modal/NetworkModal";
+import Modal from "../Modal/Modal";
 import styles from "./AppLayout.module.css";
 
 import { AppBar, Toolbar, Typography, makeStyles, Button } from "@material-ui/core";
@@ -112,7 +112,7 @@ function AppLayout() {
 
     return(
         <AppBar position="static" className={classes.appbar} >
-            {!context.isNetworkRight && <NetworkModal />}
+            {!context.isNetworkRight && <Modal message="Please connect to the right Rinkeby network" />}
             <Toolbar >
                 <Link href="/" passHref >
                     <div className={classes.menu} >

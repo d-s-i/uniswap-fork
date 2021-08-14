@@ -93,11 +93,11 @@ function LiquidityCard(props) {
     const slippage = 50 / 100;
 
     async function getButtonMessage() {
+        if(!token0Amount) return `Enter a ${tokenName} amount`;
+        if(!token1Amount) return "Enter a BNB amount";
         const isAllowed = await checkRouterAllowance(liquidityContext.token0.name, liquidityContext.token0.amount);
         if(tokenName === "token0") return "Select a token";
         if(isAllowed) return `${toogleState ? "Remove" : "Add"} Liquidity`;
-        if(!token0Amount) return `Enter a ${tokenName} amount`;
-        if(!token1Amount) return "Enter a BNB amount";
         if(!isAllowed && tokenName) return `Approve ${tokenName}`;
     }
     

@@ -121,7 +121,7 @@ function SwapTokenInputAmount(props) {
     }, [swapContext.token0.name, swapContext.token1.name])
 
     function focusHandler() {
-        if(buttonContext.isDisabled) return;
+        // if(buttonContext.isDisabled) return;
         if(props.id === "token0") {
             swapContext.onToken0Change({ focus: true });
             swapContext.onToken1Change({ focus: false });

@@ -19,7 +19,6 @@ export function AuthContextProvider(props) {
                 loginHandler();
             });
             window.ethereum.on('chainChanged', function(networkId){
-                // console.log("chainChainged:", typeof(networkId), "parseFloat:", parseFloat(networkId), "native", networkId);
                 onNetworkChange(networkId);
             });
         }, [window.ethereum]);
