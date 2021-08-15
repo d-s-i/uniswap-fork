@@ -1,22 +1,24 @@
-import React from 'react';
-import { useAddLiquidityContext } from "../../store/addLiquidity-context";
+import React, { useEffect } from 'react';
+import { useAddLiquidityContext } from "../../../store/addLiquidity-context";
+import { useSwapContext } from "../../../store/swap-context";
 
-import babyDogeLogo from "../../public/babyDogeLogo.png";
-import BNBLogo from "../../public/BNBLogo.png";
-import babyToyLogo from "../../public/babyToyLogo.png";
-import babyLeashLogo from "../../public/babyLeashLogo.png";
-import { babyDogeData } from '../../ethereum/tokens/babyDoge';
-import { babyToyData } from '../../ethereum/tokens/babyToy';
-import { babyLeashData } from '../../ethereum/tokens/babyLeash';
+import babyDogeLogo from "../../../public/babyDogeLogo.png";
+import BNBLogo from "../../../public/BNBLogo.png";
+import babyToyLogo from "../../../public/babyToyLogo.png";
+import babyLeashLogo from "../../../public/babyLeashLogo.png";
+import { babyDogeData } from '../../../ethereum/tokens/babyDoge';
+import { babyToyData } from '../../../ethereum/tokens/babyToy';
+import { babyLeashData } from '../../../ethereum/tokens/babyLeash';
+import { bnbData } from '../../../ethereum/tokens/WETH';
 
 import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import TokenListItems from "../Items/TokenListItems";
+import TokenListItems from "../../Items/TokenListItems";
 
-import styles from "./LiquiditySelectToken.module.css";
+import styles from "./SwapSelectToken.module.css";
 
 const useStyles = makeStyles((theme) => ({
   formControl: {
@@ -65,15 +67,27 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function LiquiditySelectToken(props) {
+function SwapSelectToken(props) {
 
-  const addLiquidityContext = useAddLiquidityContext();
+  // BabyDoge Test Rinkeby address : 0x76c51246641F711aAAe87C8Ef2C95da186798FB2
+  // BabyToy Test Rinkeby address : 0xe150341e165379cbc8b5f5e0d46Eff220E318F45
+  // BabyLeash Test Rinkeby address : 0x6E78d42cCe7E83FEBfE9ed3Bb5f3074A6eEE7e7c
+  // WETH address for test purposes : 0xc778417E063141139Fce010982780140Aa0cD5Ab
+
+  const swapContext = useSwapContext();
   const classes = useStyles();
   const [token0, setToken0] = React.useState(""); // /!\ change all the value for that it really match BNB, and not only the value on the Select component !!!  (change all the state)
+  const [token1, setToken1] = React.useState(""); // /!\ change all the value for that it really match BNB, and not only the value on the Select component !!!  (change all the state)
 
   function setData(tokenData) {
-    setToken0(tokenData.name);
-    addLiquidityContext.onToken0Change(tokenData);
+    if(props.id === "token0") {
+      setToken0(tokenData.name);
+      swapContext.onToken0Change(tokenData);
+    }
+    if(props.id === "token1") {
+      setToken1(tokenData.name);
+      swapContext.onToken1Change(tokenData);
+    }
   }
   
   function tokenChangeHandler(event) { 
@@ -91,17 +105,18 @@ function LiquiditySelectToken(props) {
     }
   };
   
-  if(props.defaultToken === "BNB") {
-    return (
-      <div className={classes.bnb} >
-        <TokenListItems src={BNBLogo} token="BNB" alt="BNBLogo" />
-      </div>
-    );  
-  }
+  useEffect(() => {
+    if(swapContext.token0.name !== token0.name) {
+      setToken0(swapContext.token0.name);
+    }
+    if(swapContext.token1.name !== token1.name) {
+      setToken1(swapContext.token1.name);
+    }
+  }, [swapContext.token0, swapContext.token1]);
 
   return(
     <FormControl variant="filled" className={classes.formControl} hiddenLabel={props.id === "token0" ? token0 ? true : false : token1 ? true : false} noValidate autoComplete="off">
-      {!token0 && <InputLabel className={classes.input} id="demo-simple-select-outlined-label">Select a Token</InputLabel>}
+      {(props.id === "token0" ? !token0 : !token1) && <InputLabel className={classes.input} id="demo-simple-select-outlined-label">Select a Token</InputLabel>}
       <Select
         labelId="demo-simple-select-outlined-label"
         id="demo-simple-select-outlined"
@@ -120,9 +135,12 @@ function LiquiditySelectToken(props) {
         <MenuItem value={"BABYLEASH"}>
           <TokenListItems src={babyLeashLogo} token="BabyLeash" alt="BabyLeash" />
         </MenuItem>
+        <MenuItem value={"BNB"}>
+          <TokenListItems src={BNBLogo} token="BNB" alt="BNBLogo" />
+        </MenuItem>
       </Select>
     </FormControl>
   );
 }
 
-export default LiquiditySelectToken;
+export default SwapSelectToken;

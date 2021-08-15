@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useAddLiquidityContext } from "../../../store/addLiquidity-context";
-import { useSwapContext } from "../../../store/swap-context";
-import { useButtonContext } from "../../../store/buttonMessage-context";
+import { useAddLiquidityContext } from "../../store/addLiquidity-context";
+import { useSwapContext } from "../../store/swap-context";
+import { useButtonContext } from "../../store/buttonMessage-context";
 
 import Typography from "@material-ui/core/Typography";
 import Switch from '@material-ui/core/Switch';
 import Grid from "@material-ui/core/Grid";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import AddLiquidityUI from "../../LiquidityInput/AddLiquidityUI";
-import RemoveLiquidityUI from "../../LiquidityInput/RemoveLiquidityUI";
+import AddLiquidityUI from "./AddLiquidityUI";
+import RemoveLiquidityUI from "./RemoveLiquidityUI";
 
 import styles from "./LiquidityCard.module.css";
 import React from "react";

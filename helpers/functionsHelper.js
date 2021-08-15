@@ -91,6 +91,8 @@ export async function getDeadline() {
 
 export const formalizeNumber = (number) => parseFloat(number).toFixed(17);
 
+export const getTxUrl = (hash) => `https://rinkeby.etherscan.io/tx/${hash}`;
+
 // export async function revokeTokens() {
 //     const accounts = await web3.eth.getAccounts();
 

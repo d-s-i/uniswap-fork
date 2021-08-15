@@ -107,7 +107,7 @@ function AppLayout() {
         context.onNetworkChange(networkId);
     }
     
-    const buttonContent = context.accounts[0] ? `${context.accounts[0].slice(0, 5)}...${context.accounts[0].slice(context.accounts[0].length - 5, context.accounts[0].length - 1)}` : "Login";
+    const buttonContent = context.accounts[0] ? `${context.accounts[0].slice(0, 5)}...${context.accounts[0].slice(context.accounts[0].length - 4, context.accounts[0].length)}` : "Login";
 
     return(
         <AppBar position="static" className={classes.appbar} >

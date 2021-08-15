@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useAddLiquidityContext } from "../../store/addLiquidity-context";
-import { useAuthContext } from "../../store/auth-context";
+import { useAddLiquidityContext } from "../../../store/addLiquidity-context";
+import { useAuthContext } from "../../../store/auth-context";
 
-import { getBalances } from "../../helpers/functionsHelper";
+import { getBalances } from "../../../helpers/functionsHelper";
 
 import LiquidityTokenInputAmount from "./LiquidityTokenInputAmount";
 
 import { FormControl  } from "@material-ui/core";
-import Typography from "@material-ui/core/Typography";
 
 import styles from "./LiquidityFormTokenInput.module.css";
 

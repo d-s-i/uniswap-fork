@@ -1,25 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
-import { useSwapContext } from "../../../store/swap-context";
-import { useAddLiquidityContext } from "../../../store/addLiquidity-context";
-import { useButtonContext } from "../../../store/buttonMessage-context";
+import { useSwapContext } from "../../store/swap-context";
+import { useAddLiquidityContext } from "../../store/addLiquidity-context";
+import { useButtonContext } from "../../store/buttonMessage-context";
 
-import router from "../../../ethereum/router";
-import web3 from "../../../ethereum/web3";
-import { convertEthToWei, getPaths, checkRouterAllowance, approveTokens, formalizeNumber } from "../../../helpers/functionsHelper";
+import router from "../../ethereum/router";
+import web3 from "../../ethereum/web3";
+import { convertEthToWei, getPaths, checkRouterAllowance, approveTokens, formalizeNumber, txUrl, getTxUrl } from "../../helpers/functionsHelper";
 
 import Typography from "@material-ui/core/Typography";
-import Icon from '@material-ui/core/Icon';
-import SwapFormTokenInput from "../../SwapInput/SwapFormTokenInput";
-import UserInputButton from "../Buttons/UserInputButton";
-import TransactionModal from "../Modal/TransactionModal";
-import ErrorModal from "../Modal/ErrorModal";
-import HandleTransactionCard from "./HandleTransactionCard";
-import SubCard from "./SubCard";
+import SwapFormTokenInput from "./SwapForm/SwapFormTokenInput";
+import UserInputButton from "../UI/Buttons/UserInputButton";
+import ErrorModal from "../UI/Modal/ErrorModal";
+import HandleTransactionCard from "../UI/Cards/HandleTransactionCard";
+import SubCard from "../UI/Cards/SubCard";
 
 import styles from "./SwapCard.module.css";
-import TitleCard from "./TitleCard";
+import TitleCard from "../UI/Cards/TitleCard";
+import TransactionLink from "../UI/TransactionLink";
 
 function SwapCard() {
     
@@ -36,7 +35,7 @@ function SwapCard() {
 
     const slippage = 5 / 100;
 
-    const router = useRouter();
+    const nextRouter = useRouter();
 
     useEffect(() => {
         liquidityContext.onToken0Change({name: "", address: "", amount: "", balance: 0, approved: false});
@@ -52,10 +51,8 @@ function SwapCard() {
     }
 
     async function handlePendingTransactionUI(transaction) {
-        let blockHash;
         try {
             await transaction.on("transactionHash", function(hash) {
-                blockHash = hash;
                 swapContext.onToken0Change({amount: ""});
                 swapContext.onToken1Change({amount: ""});
                 setIsLoading((prevState) => {
@@ -64,18 +61,17 @@ function SwapCard() {
                         state: true, 
                         isError: false, 
                         displayLoading: true,
-                        message: `Your swap is being processed here ${hash} Please wait.`
+                        message: <TransactionLink url={getTxUrl(hash)} firstPart="Your swap is being processed here : " secondPart=" Please wait" />
                     }
                 });
                 }).once("confirmation", function(confirmationNumber, receipt) {
-                    console.log(receipt);
                     setIsLoading((prevState) => {
                         return {
                             ...prevState,
                             state: true, 
                             isError: false, 
                             displayLoading: false,
-                            message: `Your swap have been confirmed! You can see all the details here ${receipt.blockHash}.`
+                            message: <TransactionLink url={getTxUrl(receipt.transactionHash)} firstPart="Your swap have been confirmed! You can see all the details here : " />
                         }
                     });
                 });
@@ -88,7 +84,7 @@ function SwapCard() {
                     ...prevState,
                     state: true, 
                     isError: true, 
-                    message: `Your transaction failed ... Check ${blockHash} on etherscan and/or contact admins`
+                    message: `Your transaction failed ... Check ${txUrl}${blockHash} on etherscan and/or contact admins`
                 }
             });
         }
@@ -217,15 +213,16 @@ function SwapCard() {
     }
 
     function liquidityRedirectHandler() {
-        router.push("/liquidity");
+        nextRouter.push("/liquidity");
     }
 
     return(
         <React.Fragment>
             <SubCard>
                 <TitleCard onRedirect={liquidityRedirectHandler} title="Swap" redirectionName="Add Liquidity" />
-                <Typography className={styles["card-subtitle"]} variant="subtitle1">{token0Name && token1Name ? `Exchange your ${token0Name || "--"} for ${token1Name || "--"}` : "Select a token"}</Typography>
-                {/* {isLoading.state && !isLoading.isError && <TransactionModal onCloseModal={closeModalHandler} message={isLoading.message} />} */}
+                <Typography className={styles["card-subtitle"]} variant="subtitle1">
+                    {token0Name && token1Name ? `Exchange your ${token0Name || "--"} for ${token1Name || "--"}` : "Select a token"}
+                </Typography>
                 {isLoading.state && isLoading.isError && <ErrorModal onCloseModal={closeModalHandler} message={isLoading.message} displayButton={true} />}
                 <SwapFormTokenInput />
                 <UserInputButton onClick={swap} disabled={buttonContext.isDisabled} message={buttonContext.message} />

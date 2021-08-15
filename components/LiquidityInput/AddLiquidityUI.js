@@ -1,20 +1,18 @@
 import React, { useState } from "react";
 import { useAddLiquidityContext } from "../../store/addLiquidity-context";
 
-import { convertEthToWei, approveTokens, checkRouterAllowance, getDeadline, formalizeNumber } from "../../helpers/functionsHelper";
+import { convertEthToWei, approveTokens, checkRouterAllowance, getDeadline, formalizeNumber, getTxUrl } from "../../helpers/functionsHelper";
 import router from "../../ethereum/router";
 import web3 from "../../ethereum/web3";
 
-import LiquidityFormTokenInput from "./LiquidityFormTokenInput";
+import LiquidityFormTokenInput from "./LiquidityForm/LiquidityFormTokenInput";
 import UserInputButton from "../UI/Buttons/UserInputButton";
 import SubCard from "../UI/Cards/SubCard";
 import TitleCard from "../UI/Cards/TitleCard";
 import HandleTransactionCard from "../UI/Cards/HandleTransactionCard";
+import TransactionLink from "../UI/TransactionLink";
 
 import { Typography } from "@material-ui/core";
-import Button from "@material-ui/core/Button";
-import LaunchIcon from '@material-ui/icons/Launch';
-
 
 import styles from "./AddLiquidityUI.module.css";
 import { makeStyles } from '@material-ui/core/styles';
@@ -56,8 +54,8 @@ function AddLiquidityUI(props) {
                 .addLiquidityETH(
                     `${liquidityContext.token0.address}`, 
                     `${convertEthToWei(`${formalizeNumber(token0Amount)}`)}`, 
-                    `${convertEthToWei(`${formalizeNumber(token0Amount) * (1 - slippage)}`)}`, // commented because  I have a problem, token0Amount is 1 wei when calculated from the quote function, so token0Amount*(1-slippage) === 0.5 wei ...
-                    `${convertEthToWei(`${formalizeNumber(token1Amount) * (1 - slippage)}`)}`,  // need to resolve the quote problem and getting a real value
+                    `${convertEthToWei(`${formalizeNumber(token0Amount * (1 - slippage))}`)}`, // commented because  I have a problem, token0Amount is 1 wei when calculated from the quote function, so token0Amount*(1-slippage) === 0.5 wei ...
+                    `${convertEthToWei(`${formalizeNumber(token1Amount * (1 - slippage))}`)}`,  // need to resolve the quote problem and getting a real value
                     accounts[0], 
                     deadline)
                 .send({ 
@@ -67,10 +65,18 @@ function AddLiquidityUI(props) {
                 .on("transactionHash", function(hash) {
                         liquidityContext.onToken0Change({amount: ""});
                         liquidityContext.onToken1Change({amount: ""});
-                        setIsLoading({state: true, displayLoading: true, message: `Your transaction is being processed here ${hash} Please wait.`});
+                        setIsLoading({state: true, displayLoading: true, message: <TransactionLink url={getTxUrl(hash)} firstPart="Your transaction is being processed here : " lastPart=" Please wait." /> });
                     })
                 .once("confirmation", function(confirmationNumber, receipt) {
-                        setIsLoading({state: true, displayLoading: false, message: `Your transaction have been confirmed! You can see all the details here ${receipt.blockHash}.`});
+                    console.log("confirmation runnin :)");
+                        setIsLoading((prevState) => {
+                            return {
+                                ...prevState,
+                                state: true, 
+                                displayLoading: false, 
+                                message: <TransactionLink url={getTxUrl(receipt.transactionHash)} firstPart="Your transaction have been confirmed! You can see all the details here : "  />
+                            }
+                        });
                     }); // AJOUTER DU SLIPPAGE DYNAMIQUE
         }
         if(!isRouterAllowed && parseFloat(token0Amount) !== 0) {

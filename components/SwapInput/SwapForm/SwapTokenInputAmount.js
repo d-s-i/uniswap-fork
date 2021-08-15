@@ -1,13 +1,13 @@
 import React, { useEffect } from "react";
-import { useSwapContext } from "../../store/swap-context";
-import { useButtonContext } from "../../store/buttonMessage-context";
+import { useSwapContext } from "../../../store/swap-context";
+import { useButtonContext } from "../../../store/buttonMessage-context";
 
-import { convertEthToWei, convertWeiToEth, getPaths, checkInput } from "../../helpers/functionsHelper";
-import web3 from "../../ethereum/web3";
-import router from "../../ethereum/router";
-import compiledUniswapV2Pair from "../../ethereum/contracts/core/build/UniswapV2Pair.json";
-import factory from "../../ethereum/factory";
-import { wethAddress } from "../../ethereum/tokens/WETH";
+import { convertEthToWei, convertWeiToEth, getPaths, checkInput } from "../../../helpers/functionsHelper";
+import web3 from "../../../ethereum/web3";
+import router from "../../../ethereum/router";
+import compiledUniswapV2Pair from "../../../ethereum/contracts/core/build/UniswapV2Pair.json";
+import factory from "../../../ethereum/factory";
+import { wethAddress } from "../../../ethereum/tokens/WETH";
 
 import SwapSelectToken from "./SwapSelectToken";
 import { Typography, makeStyles, Button } from "@material-ui/core";

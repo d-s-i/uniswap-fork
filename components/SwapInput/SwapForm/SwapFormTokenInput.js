@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useSwapContext } from "../../store/swap-context";
-import { useAuthContext } from "../../store/auth-context";
+import { useSwapContext } from "../../../store/swap-context";
+import { useAuthContext } from "../../../store/auth-context";
 
-import babyDoge from "../../ethereum/tokens/babyDoge";
-import babyLeash from "../../ethereum/tokens/babyLeash";
-import babyToy from "../../ethereum/tokens/babyToy";
-import web3 from "../../ethereum/web3";
-import { convertWeiToEth, getBalances } from "../../helpers/functionsHelper";
+import babyDoge from "../../../ethereum/tokens/babyDoge";
+import babyLeash from "../../../ethereum/tokens/babyLeash";
+import babyToy from "../../../ethereum/tokens/babyToy";
+import web3 from "../../../ethereum/web3";
+import { convertWeiToEth, getBalances } from "../../../helpers/functionsHelper";
 
 import SwapTokenInputAmount from "./SwapTokenInputAmount";
 

@@ -11,12 +11,13 @@ import { babyDogeAddress } from "../../ethereum/tokens/babyDoge";
 import { babyLeashAddress } from "../../ethereum/tokens/babyLeash";
 import { babyToyAddress } from "../../ethereum/tokens/babyToy";
 import { wethAddress } from "../../ethereum/tokens/WETH";
-import { convertWeiToEth, getDeadline } from "../../helpers/functionsHelper";
+import { convertWeiToEth, getDeadline, getTxUrl } from "../../helpers/functionsHelper";
 import factory from "../../ethereum/factory";
 import router, { routerAddress } from "../../ethereum/router";
 import compiledERC20 from "../../ethereum/contracts/periphery/build/ERC20.json";
 import compiledUniswapV2Pair from "../../ethereum/contracts/core/build/UniswapV2Pair.json";
 import { useAuthContext } from "../../store/auth-context";
+import TransactionLink from "../UI/TransactionLink";
 
 import Typography from "@material-ui/core/Typography";
 import Slider from '@material-ui/core/Slider';
@@ -242,9 +243,23 @@ function RemoveLiquidityUI(props) {
             ).send({ from: authContext.accounts[0] }).on("transactionHash", function(hash) {
                 dispatchToken({type: "INITIAL_STATE"});
                 setPercentageTo0();
-                setIsLoading({state: true, displayLoading: true,message: `Your transaction is being processed here ${hash} Please wait.`});
+                setIsLoading((prevState) => {
+                    return {
+                        ...prevState,
+                        state: true, 
+                        displayLoading: true, 
+                        message: <TransactionLink url={getTxUrl(hash)} firstPart="Your transaction is being processed here : " lastPart=" Please wait" />
+                    }
+                });
                 }).once("confirmation", function(confirmationNumber, receipt) {
-                    setIsLoading({state: true, displayLoading: false, message: `Your transaction have been confirmed! You can see all the details here ${receipt.blockHash}.`});
+                    setIsLoading((prevState) => {
+                        return {
+                            ...prevState,
+                            state: true, 
+                            displayLoading: false, 
+                            message: <TransactionLink url={getTxUrl(receipt.transactionHash)} firstPart="Your transaction have been confirmed! You can see all the details here : " />
+                        }
+                    });
             });
         }
     }
