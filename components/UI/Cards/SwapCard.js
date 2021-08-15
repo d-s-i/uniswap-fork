@@ -1,32 +1,98 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 import { useSwapContext } from "../../../store/swap-context";
+import { useAddLiquidityContext } from "../../../store/addLiquidity-context";
 import { useButtonContext } from "../../../store/buttonMessage-context";
 
-import router, { routerAddress } from "../../../ethereum/router";
+import router from "../../../ethereum/router";
 import web3 from "../../../ethereum/web3";
-import { convertEthToWei, getPaths, checkRouterAllowance, approveTokens, revokeTokens } from "../../../helpers/functionsHelper";
+import { convertEthToWei, getPaths, checkRouterAllowance, approveTokens, formalizeNumber } from "../../../helpers/functionsHelper";
 
 import Typography from "@material-ui/core/Typography";
+import Icon from '@material-ui/core/Icon';
 import SwapFormTokenInput from "../../SwapInput/SwapFormTokenInput";
 import UserInputButton from "../Buttons/UserInputButton";
 import TransactionModal from "../Modal/TransactionModal";
+import ErrorModal from "../Modal/ErrorModal";
+import HandleTransactionCard from "./HandleTransactionCard";
+import SubCard from "./SubCard";
 
 import styles from "./SwapCard.module.css";
+import TitleCard from "./TitleCard";
 
-function SwapCard(props) {
+function SwapCard() {
     
     const swapContext = useSwapContext();
+    const liquidityContext = useAddLiquidityContext();
     const buttonContext = useButtonContext();
-    const [isLoading, setIsLoading] = useState({state: false, message: ""});
+    const initialLoadingState = {state: false, displayLoading: false, message: "", isError: false};
+    const [isLoading, setIsLoading] = useState(initialLoadingState);
 
-    const slippage = 5/100;
+    const token0Name = swapContext.token0.name;
+    const token1Name = swapContext.token1.name;
+    const token0Amount = swapContext.token0.amount;
+    const token1Amount = swapContext.token1.amount;
+
+    const slippage = 5 / 100;
+
+    const router = useRouter();
+
+    useEffect(() => {
+        liquidityContext.onToken0Change({name: "", address: "", amount: "", balance: 0, approved: false});
+    }, [])
 
     function closeModalHandler() {
-        setIsLoading({state: false, message: ""});
+        setIsLoading((prevState) => {
+            return {
+                ...prevState,
+                ...initialLoadingState
+            }
+        });
     }
 
-    // revokeTokens();
+    async function handlePendingTransactionUI(transaction) {
+        let blockHash;
+        try {
+            await transaction.on("transactionHash", function(hash) {
+                blockHash = hash;
+                swapContext.onToken0Change({amount: ""});
+                swapContext.onToken1Change({amount: ""});
+                setIsLoading((prevState) => {
+                    return {
+                        ...prevState,
+                        state: true, 
+                        isError: false, 
+                        displayLoading: true,
+                        message: `Your swap is being processed here ${hash} Please wait.`
+                    }
+                });
+                }).once("confirmation", function(confirmationNumber, receipt) {
+                    console.log(receipt);
+                    setIsLoading((prevState) => {
+                        return {
+                            ...prevState,
+                            state: true, 
+                            isError: false, 
+                            displayLoading: false,
+                            message: `Your swap have been confirmed! You can see all the details here ${receipt.blockHash}.`
+                        }
+                    });
+                });
+                swapContext.onToken0Change({amount: ""});
+                swapContext.onToken1Change({amount: ""});
+        } catch (error) {
+            if(error.code === 4001) return;
+            setIsLoading((prevState) => {
+                return {
+                    ...prevState,
+                    state: true, 
+                    isError: true, 
+                    message: `Your transaction failed ... Check ${blockHash} on etherscan and/or contact admins`
+                }
+            });
+        }
+    }
 
     async function swap() {
         const accounts = await web3.eth.getAccounts();
@@ -34,157 +100,138 @@ function SwapCard(props) {
         const now = await web3.eth.getBlock(blockNumber);
         const deadline = now.timestamp + 10000;
 
-        const isToken0Allowed = await checkRouterAllowance(swapContext.token0.name, swapContext.token0.amount);
+        const isToken0Allowed = await checkRouterAllowance(token0Name, token0Amount);
 
-        if(!isToken0Allowed && swapContext.token0.name !== "BNB") {
-            setIsLoading({state: true, message: "Your transaction is being processed and your token will soon be approved"});
-            await approveTokens(swapContext.token0.name);
+        if(!isToken0Allowed && token0Name !== "BNB") {
+            setIsLoading((prevState) => {
+                return {
+                    ...prevState,
+                    state: true, 
+                    isError: false, 
+                    message: "Your transaction is being processed and your token will soon be approved"
+                }
+            });
+            await approveTokens(token0Name);
             swapContext.onToken0Change({ approved : true });
-            setIsLoading({state: false, message: ""});
+            setIsLoading((prevState) => {
+                return {
+                    ...prevState,
+                    state: false, 
+                    isError: false, 
+                    message: ""
+                }
+            });
             return;
         }
 
         if(swapContext.token0.focus) {
 
-            if(swapContext.token0.name === swapContext.token1.name) return;
-            if(swapContext.token0.name === "BNB") {
-                const amountOutMin = convertEthToWei(swapContext.token1.amount * (1 - slippage)) ; 
+            if(token0Name === token1Name) return;
+            if(token0Name === "BNB") {
+                const amountOutMin = convertEthToWei(formalizeNumber(token1Amount) * (1 - slippage)) ; 
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);
 
-                try {
-                    await router.methods.swapExactETHForTokens(
-                        `${amountOutMin}`, 
-                        paths, 
-                        accounts[0], 
-                        deadline
-                    ).send({ from: accounts[0], value: convertEthToWei(swapContext.token0.amount) }).on("transactionHash", function(hash) {
-                        setIsLoading({state: true, message: `Your swap is being processed here ${hash} Please wait.`});
-                        }).once("confirmation", function(confirmationNumber, receipt) {
-                            setIsLoading({state: true, message: `Your swap have been confirmed! You can see all the details here ${receipt.blockHash}.`});
-                    });
-                } catch(error) {
-                    setIsLoading({state: false, message: ""});
-                    console.log(error);
-                }
+                handlePendingTransactionUI(router.methods.swapExactETHForTokens(
+                    `${(amountOutMin)}`, 
+                    paths, 
+                    accounts[0], 
+                    deadline
+                ).send({ from: accounts[0], value: convertEthToWei(token0Amount) }));
             }
-            if(swapContext.token1.name === "BNB") {
-                
-                const amountIn = convertEthToWei(swapContext.token0.amount);
-                const amountOutMin = convertEthToWei(swapContext.token1.amount * (1 - slippage)) ;
+            if(token1Name === "BNB") {
+                const amountIn = convertEthToWei(token0Amount);
+                const amountOutMin = convertEthToWei(formalizeNumber(token1Amount * (1 - slippage))) ;
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);
 
-                try {
-                    await router.methods.swapExactTokensForETH(
-                        `${amountIn}`, 
-                        `${amountOutMin}`, 
-                        paths,
-                        accounts[0],
-                        deadline
-                    ).send({ from: accounts[0] }).on("transactionHash", function(hash) {
-                        setIsLoading({state: true, message: `Your swap is being processed here ${hash} Please wait.`});
-                        }).once("confirmation", function(confirmationNumber, receipt) {
-                            setIsLoading({state: true, message: `Your swap have been confirmed! You can see all the details here ${receipt.blockHash}.`});
-                    });
-                } catch(error) {
-                    setIsLoading({state: false, message: ""});
-                }
+                handlePendingTransactionUI(router.methods.swapExactTokensForETH(
+                    `${amountIn}`, 
+                    `${amountOutMin}`, 
+                    paths,
+                    accounts[0],
+                    deadline
+                ).send({ from: accounts[0] }));
             }
-            if(swapContext.token0.name !== "BNB" && swapContext.token1.name !== "BNB") {
-                const amountIn = convertEthToWei(swapContext.token0.amount);
-                const amountOutMin = convertEthToWei(swapContext.token1.amount * (1 - slippage)) ; 
+            if(token0Name !== "BNB" && token1Name !== "BNB") {
+                const amountIn = convertEthToWei(token0Amount);
+                const amountOutMin = convertEthToWei(formalizeNumber(token1Amount) * (1 - slippage)) ; 
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);
 
-                try {
-                    await router.methods.swapExactTokensForTokens(
+                handlePendingTransactionUI(
+                    router.methods.swapExactTokensForTokens(
                         `${amountIn}`, 
                         `${amountOutMin}`, 
                         paths, 
                         accounts[0], 
                         deadline
-                    ).send({ from: accounts[0] }).on("transactionHash", function(hash) {
-                        setIsLoading({state: true, message: `Your swap is being processed here ${hash} Please wait.`});
-                        }).once("confirmation", function(confirmationNumber, receipt) {
-                            setIsLoading({state: true, message: `Your swap have been confirmed! You can see all the details here ${receipt.blockHash}.`});
-                    });
-                } catch(error) {
-                    setIsLoading({state: false, message: ""});
-                }
+                    ).send({ from: accounts[0] })
+                );
             }
         }
         if(swapContext.token1.focus) {
-            if(swapContext.token0.name === swapContext.token1.name) return;
-            if(swapContext.token0.name === "BNB") {
-                const amountOut = convertEthToWei(swapContext.token1.amount);
+            
+            if(token0Name === token1Name) return;
+            if(token0Name === "BNB") {
+                const amountOut = convertEthToWei(token1Amount);
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);
 
-                try {
-                    await router.methods.swapETHForExactTokens(
+                handlePendingTransactionUI(
+                    router.methods.swapETHForExactTokens(
                         `${amountOut}`,
                         paths,
                         accounts[0],
                         deadline    
-                    ).send({ from: accounts[0], value: convertEthToWei(swapContext.token0.amount) }).on("transactionHash", function(hash) {
-                        setIsLoading({state: true, message: `Your swap is being processed here ${hash} Please wait.`});
-                        }).once("confirmation", function(confirmationNumber, receipt) {
-                            setIsLoading({state: true, message: `Your swap have been confirmed! You can see all the details here ${receipt.blockHash}.`});
-                    });
-                } catch(error) {
-                    setIsLoading({state: false, message: ""});
-                }
+                    ).send({ from: accounts[0], value: convertEthToWei(token0Amount) })
+                );
             }
-            if(swapContext.token1.name === "BNB") {
-                const amountOut = convertEthToWei(swapContext.token1.amount);
-                const amountInMax = convertEthToWei(swapContext.token0.amount * (1 + slippage));
+            if(token1Name === "BNB") {
+                const amountOut = convertEthToWei(token1Amount);
+                const amountInMax = convertEthToWei(formalizeNumber(token0Amount) * (1 + slippage));
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);
 
-                try {
-                    await router.methods.swapTokensForExactETH(
+                handlePendingTransactionUI(
+                    router.methods.swapTokensForExactETH(
                         `${amountOut}`,
                         `${amountInMax}`,
                         paths,
                         accounts[0],
                         deadline
-                    ).send({ from: accounts[0] }).on("transactionHash", function(hash) {
-                        setIsLoading({state: true, message: `Your swap is being processed here ${hash} Please wait.`});
-                        }).once("confirmation", function(confirmationNumber, receipt) {
-                            setIsLoading({state: true, message: `Your swap have been confirmed! You can see all the details here ${receipt.blockHash}.`});
-                    });
-                } catch(error) {
-                    setIsLoading({state: false, message: ""});
-                }
+                    ).send({ from: accounts[0] })
+                );
             }
-            if(swapContext.token0.name !== "BNB" && swapContext.token1.name !== "BNB") {
-                const amountOut = convertEthToWei(swapContext.token1.amount);
-                const amountInMax = convertEthToWei(swapContext.token0.amount * (1 + slippage));
+            if(token0Name !== "BNB" && token1Name !== "BNB") {
+                const amountOut = convertEthToWei(token1Amount);
+                const amountInMax = convertEthToWei(formalizeNumber(token0Amount) * (1 + slippage));
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);          
 
-                try {
-                    await router.methods.swapTokensForExactTokens(
+                handlePendingTransactionUI(
+                    router.methods.swapTokensForExactTokens(
                         `${amountOut}`,
                         `${amountInMax}`,
                         paths,
                         accounts[0],
                         deadline
-                    ).send({ from: accounts[0] }).on("transactionHash", function(hash) {
-                        setIsLoading({state: true, message: `Your swap is being processed here ${hash} Please wait.`});
-                        }).once("confirmation", function(confirmationNumber, receipt) {
-                            setIsLoading({state: true, message: `Your swap have been confirmed! You can see all the details here ${receipt.blockHash}.`});
-                    });
-                } catch(error) {
-                    setIsLoading({state: false, message: ""});
-                }
+                    ).send({ from: accounts[0] })
+                );
             }
         }
     }
 
+    function liquidityRedirectHandler() {
+        router.push("/liquidity");
+    }
+
     return(
-        <div className={styles["swap-container"]} >
-            <Typography style={{ fontWeight: "bold" }} className={styles["card-title"]} variant="h4">Swap</Typography>
-            <Typography className={styles["card-subtitle"]} variant="subtitle1">{swapContext.token0.name && swapContext.token1.name ? `Exchange your ${swapContext.token0.name || "--"} for ${swapContext.token1.name || "--"}` : "Select a token"}</Typography>
-            {isLoading.state && <TransactionModal onCloseModal={closeModalHandler} message={isLoading.message} />}
-            <SwapFormTokenInput />
-            <UserInputButton onClick={swap} disabled={buttonContext.isDisabled} message={buttonContext.message} />
-        </div>
+        <React.Fragment>
+            <SubCard>
+                <TitleCard onRedirect={liquidityRedirectHandler} title="Swap" redirectionName="Add Liquidity" />
+                <Typography className={styles["card-subtitle"]} variant="subtitle1">{token0Name && token1Name ? `Exchange your ${token0Name || "--"} for ${token1Name || "--"}` : "Select a token"}</Typography>
+                {/* {isLoading.state && !isLoading.isError && <TransactionModal onCloseModal={closeModalHandler} message={isLoading.message} />} */}
+                {isLoading.state && isLoading.isError && <ErrorModal onCloseModal={closeModalHandler} message={isLoading.message} displayButton={true} />}
+                <SwapFormTokenInput />
+                <UserInputButton onClick={swap} disabled={buttonContext.isDisabled} message={buttonContext.message} />
+            </SubCard>
+            {isLoading.state && !isLoading.isError && <HandleTransactionCard displayLoading={isLoading.displayLoading} >{isLoading.message}</HandleTransactionCard>}
+        </React.Fragment>
     );
 }
 

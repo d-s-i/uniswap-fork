@@ -27,7 +27,45 @@ function SwapTokenInputAmount(props) {
     const swapContext = useSwapContext();
     const buttonContext = useButtonContext();
 
+    const token0Address = swapContext.token0.address;
+    const token1Address = swapContext.token1.address;
+    const token0Amount = swapContext.token0.amount;
+    const token1Amount = swapContext.token1.amount;
+
     const classes = useStyles();
+
+    async function calculateAmountsOut(value) {
+        try {
+            const rawPaths = getPaths(token0Address, token1Address);
+
+            const amountsOut = await router.methods.getAmountsOut(
+                convertEthToWei(value), 
+                rawPaths
+            ).call();
+            const token1WeiAmount = amountsOut.slice(-1); 
+            console.log(convertWeiToEth(token1WeiAmount));
+
+            return convertWeiToEth(token1WeiAmount);
+        } catch (error) {
+            buttonContext.onButtonChange("Insufficient liquidity for this trade");
+        }
+    }
+
+    async function calculateAmountsIn(value) {
+        try {
+            const rawPaths = getPaths(token0Address, token1Address);
+                    
+            const amountsIn = await router.methods.getAmountsIn(
+                convertEthToWei(value), 
+                rawPaths
+            ).call(); 
+
+            const token0WeiAmount = amountsIn[0]; 
+            return convertWeiToEth(token0WeiAmount);
+        } catch(error) {
+            buttonContext.onButtonChange("Insufficient liquidity for this trade");
+        }
+    }
 
     async function tokenAmountChangeHandler(event) {
 
@@ -35,83 +73,51 @@ function SwapTokenInputAmount(props) {
         
         if(props.id === "token0") {  
             swapContext.onToken0Change({ amount: enteredValue });
+
             if(enteredValue.slice(-1) === "." || enteredValue === "0") return;
+            
             if(enteredValue !== "" && enteredValue.slice(-1) !== "." && parseFloat(enteredValue) !== 0) {
-                try {
-                    const rawPaths = getPaths(swapContext.token0.address, swapContext.token1.address);
-
-                    const amountsOut = await router.methods.getAmountsOut(
-                        convertEthToWei(enteredValue), 
-                        rawPaths
-                    ).call(); 
-                    const token1WeiAmount = amountsOut.slice(-1); 
-
-                    const token1Amount = convertWeiToEth(token1WeiAmount);
-                    swapContext.onToken1Change({ amount: token1Amount });
-                } catch (error) {
-                    buttonContext.onButtonChange("Insufficient liquidity for this trade");
-                }
+                const token1Amount = await calculateAmountsOut(enteredValue);
+                swapContext.onToken1Change({ amount: token1Amount });
             }
         }
         if(props.id === "token1") {
             swapContext.onToken1Change({ amount: enteredValue });
-            if(enteredValue.slice(-1) === "." || enteredValue === "0") return;
-            if(enteredValue !== "" && enteredValue.slice(-1) !== "." && parseFloat(enteredValue) !== 0) {
-                try {
-                    const rawPaths = getPaths(swapContext.token0.address, swapContext.token1.address);
-                    
-                    const amountsIn = await router.methods.getAmountsIn(
-                        convertEthToWei(enteredValue), 
-                        rawPaths
-                    ).call(); 
 
-                    const token0WeiAmount = amountsIn[0]; 
-                    const token0Amount = convertWeiToEth(token0WeiAmount);
-                    swapContext.onToken0Change({ amount: token0Amount });
-                } catch(error) {
-                    buttonContext.onButtonChange("Insufficient liquidity for this trade");
-                }
+            if(enteredValue.slice(-1) === "." || enteredValue === "0") return;
+            
+            if(enteredValue !== "" && enteredValue.slice(-1) !== "." && parseFloat(enteredValue) !== 0) {
+                const token0Amount = await calculateAmountsIn(enteredValue);
+                swapContext.onToken0Change({ amount: token0Amount });
             }
         }
     }
 
     async function getAmountsOnExchangeToken() {
         if(swapContext.token0.focus) {  
-            if(Number.isNaN(Number(swapContext.token0.amount))) return;
-            if(swapContext.token0.amount !== "" && swapContext.token0.amount.slice(-1) !== "." && parseFloat(swapContext.token0.amount) !== 0) {
-                try {
-                    const rawPaths = getPaths(swapContext.token0.address, swapContext.token1.address);
 
-                    const amountsOut = await router.methods.getAmountsOut(
-                        convertEthToWei(swapContext.token0.amount), 
-                        rawPaths
-                    ).call(); 
-                    const token1WeiAmount = amountsOut.slice(-1); 
-
-                    const token1Amount = convertWeiToEth(token1WeiAmount);
-                    swapContext.onToken1Change({ amount: token1Amount });
-                } catch (error) {
-                    buttonContext.onButtonChange("Insufficient liquidity for this trade");
-                }
+            if(Number.isNaN(Number(token0Amount))) return;
+            
+            if(
+                token0Amount !== "" 
+                && token0Amount.slice(-1) !== "." 
+                && parseFloat(token0Amount) !== 0
+            ) {
+                const token1Amount = await calculateAmountsOut(token0Amount);
+                swapContext.onToken1Change({ amount: token1Amount });
             }
         }
         if(swapContext.token1.focus) {
-            if(Number.isNaN(Number(swapContext.token1.amount))) return;
-            if(swapContext.token1.amount !== "" && swapContext.token1.amount.slice(-1) !== "." && parseFloat(swapContext.token1.amount) !== 0) {
-                try {
-                    const rawPaths = getPaths(swapContext.token0.address, swapContext.token1.address);
-                    
-                    const amountsIn = await router.methods.getAmountsIn(
-                        convertEthToWei(swapContext.token1.amount), 
-                        rawPaths
-                    ).call(); 
 
-                    const token0WeiAmount = amountsIn[0]; 
-                    const token0Amount = convertWeiToEth(token0WeiAmount);
-                    swapContext.onToken0Change({ amount: token0Amount });
-                } catch(error) {
-                    buttonContext.onButtonChange("Insufficient liquidity for this trade");
-                }
+            if(Number.isNaN(Number(token1Amount))) return;
+            
+            if(
+                token1Amount !== "" 
+                && token1Amount.slice(-1) !== "." 
+                && parseFloat(token1Amount) !== 0
+            ) {
+                const token0Amount = await calculateAmountsIn(token1Amount);
+                swapContext.onToken0Change({ amount: token0Amount });
             }
         }
     }
@@ -121,7 +127,6 @@ function SwapTokenInputAmount(props) {
     }, [swapContext.token0.name, swapContext.token1.name])
 
     function focusHandler() {
-        // if(buttonContext.isDisabled) return;
         if(props.id === "token0") {
             swapContext.onToken0Change({ focus: true });
             swapContext.onToken1Change({ focus: false });
@@ -136,50 +141,36 @@ function SwapTokenInputAmount(props) {
         if(props.id === "token0") {
             focusHandler();
             swapContext.onToken0Change({ amount: swapContext.token0.balance });
+
             if(Number.isNaN(Number(swapContext.token0.balance))) return;
-            if(swapContext.token0.balance !== "" && swapContext.token0.balance.slice(-1) !== "." && parseFloat(swapContext.token0.balance) !== 0) {
-                try {
-                    const rawPaths = getPaths(swapContext.token0.address, swapContext.token1.address);
-    
-                    const amountsOut = await router.methods.getAmountsOut(
-                        convertEthToWei(swapContext.token0.balance), 
-                        rawPaths
-                    ).call(); 
-                    const token1WeiAmount = amountsOut.slice(-1); 
-    
-                    const token1Amount = convertWeiToEth(token1WeiAmount);
-                    swapContext.onToken1Change({ amount: token1Amount });
-                } catch (error) {
-                    buttonContext.onButtonChange("Insufficient liquidity for this trade");
-                }
+            
+            if(
+                swapContext.token0.balance !== "" 
+                && swapContext.token0.balance.slice(-1) !== "." 
+                && parseFloat(swapContext.token0.balance) !== 0
+            ) {
+                const token1Amount = await calculateAmountsOut(swapContext.token0.balance);
+                swapContext.onToken1Change({ amount: token1Amount });
             }
         }
         if(props.id === "token1") {
             focusHandler();
             swapContext.onToken1Change({ amount: swapContext.token1.balance });
-            if(Number.isNaN(Number(swapContext.token1.balance))) return;
-            if(swapContext.token1.balance !== "" && swapContext.token1.balance.slice(-1) !== "." && parseFloat(swapContext.token1.balance) !== 0) {
-                try {
-                    const rawPaths = getPaths(swapContext.token0.address, swapContext.token1.address);
 
-                    const amountsIn = await router.methods.getAmountsIn(
-                        convertEthToWei(swapContext.token1.balance), 
-                        rawPaths
-                    ).call(); 
-    
-                    const token0WeiAmount = amountsIn[0]; 
-                    const token0Amount = convertWeiToEth(token0WeiAmount);
-                    swapContext.onToken0Change({ amount: token0Amount });
-                } catch(error) {
-                    // if(error.message.includes("underflow")) {
-                    // }
-                    buttonContext.onButtonChange("Insufficient liquidity for this trade");
-                }
+            if(Number.isNaN(Number(swapContext.token1.balance))) return;
+            
+            if(
+                swapContext.token1.balance !== "" 
+                && swapContext.token1.balance.slice(-1) !== "." 
+                && parseFloat(swapContext.token1.balance) !== 0
+            ) {
+                const token0Amount = await calculateAmountsIn(swapContext.token1.balance);
+                swapContext.onToken0Change({ amount: token0Amount });
             }
         }
     }
     
-    const amount = props.id === "token0" ? swapContext.token0.amount : swapContext.token1.amount;
+    const amount = props.id === "token0" ? token0Amount : token1Amount;
 
     return(
         <div className={styles.container} >

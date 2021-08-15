@@ -1,25 +1,16 @@
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { useAddLiquidityContext } from "../../../store/addLiquidity-context";
-import { useAuthContext } from "../../../store/auth-context";
-
-import web3 from "../../../ethereum/web3";
-import router, { routerAddress } from "../../../ethereum/router";
-import factory from "../../../ethereum/factory";
-import compiledERC20 from "../../../ethereum/contracts/core/build/ERC20.json";
-import babyDoge from "../../../ethereum/tokens/babyDoge";
-import babyToy from "../../../ethereum/tokens/babyToy";
-import babyLeash from "../../../ethereum/tokens/babyLeash";
-import { wethAddress } from "../../../ethereum/tokens/WETH";
-import { convertEthToWei, checkRouterAllowance, approveTokens } from "../../../helpers/functionsHelper";
+import { useSwapContext } from "../../../store/swap-context";
+import { useButtonContext } from "../../../store/buttonMessage-context";
 
 import Typography from "@material-ui/core/Typography";
 import Switch from '@material-ui/core/Switch';
 import Grid from "@material-ui/core/Grid";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import AddCircleOutlinedIcon from '@material-ui/icons/AddCircleOutlined';
 import AddLiquidityUI from "../../LiquidityInput/AddLiquidityUI";
-import RemoveLiquidityInput from "../../LiquidityInput/RemoveLiquidityInput";
+import RemoveLiquidityUI from "../../LiquidityInput/RemoveLiquidityUI";
 
 import styles from "./LiquidityCard.module.css";
 import React from "react";
@@ -35,7 +26,6 @@ const PurpleSwitch = withStyles({
       },
     switchBase: {
         color: "#0ab5db",
-        // padding: "30px",
         margin: "0",
         padding: "10px",
         '&$checked': {
@@ -54,16 +44,6 @@ const PurpleSwitch = withStyles({
   })(Switch);
 
   const useStyles = makeStyles({
-      liquidityButton: {
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          alignContent: "center",
-          fontWeight: "bold"
-      },
-      liquidityIcon: {
-          marginRight: "10px"
-      },
       tab: {
           textDecoration: "underline",
           color: "#0ab5db",
@@ -73,51 +53,28 @@ const PurpleSwitch = withStyles({
 
 function LiquidityCard(props) {
 
-    const [buttonMessage, setButtonMessage] = useState("Add Liquidity");
-    const [isDisabled, setIsDisabled] = useState(true);
     const [toogleState, setToogleState] = useState(false);
 
     const classes = useStyles();
+
+    const router = useRouter();
 
     function handleChange() {
         setToogleState((prevState) => setToogleState(!prevState));
     };
     
     const liquidityContext = useAddLiquidityContext();
-    const authContext = useAuthContext();
-
-    const tokenName = liquidityContext.token0.name;
-    const token0Amount = liquidityContext.token0.amount;
-    const token1Amount = liquidityContext.token1.amount;
-
-    const slippage = 50 / 100;
-
-    async function getButtonMessage() {
-        if(!token0Amount) return `Enter a ${tokenName} amount`;
-        if(!token1Amount) return "Enter a BNB amount";
-        const isAllowed = await checkRouterAllowance(liquidityContext.token0.name, liquidityContext.token0.amount);
-        if(tokenName === "token0") return "Select a token";
-        if(isAllowed) return `${toogleState ? "Remove" : "Add"} Liquidity`;
-        if(!isAllowed && tokenName) return `Approve ${tokenName}`;
-    }
+    const swapContext = useSwapContext();
+    const buttonContext = useButtonContext();
     
     useEffect(() => {
-        async function changeMessageHandler() {
-            const buttonIcon = <AddCircleOutlinedIcon className={classes.liquidityIcon} />;
-            const message = await getButtonMessage();
-
-            setButtonMessage(
-                <Typography variant="h6" component="div" className={classes.liquidityButton} >
-                    <Typography variant="h6" className={classes.liquidityButton} >{buttonIcon}</Typography>
-                    {message}
-                </Typography>);
-        }
-        changeMessageHandler();
+        swapContext.onToken0Change({name: "", address: "", amount: "", focus: false, approved: false, balance: 0});
+        swapContext.onToken1Change({name: "", address: "", amount: "", focus: false, approved: false, balance: 0});
     }, [liquidityContext.token0, liquidityContext.token1, toogleState]);
 
-    useEffect(() => {
-        setIsDisabled(parseFloat(token0Amount) === 0 || parseFloat(token1Amount) === 0 || token0Amount === "" || token1Amount === "");
-    }, [token0Amount, token1Amount]);
+    function swapRedirectHandler() {
+        router.push("/swap");
+    }
 
     return(
         <React.Fragment>
@@ -130,8 +87,8 @@ function LiquidityCard(props) {
                     <Grid item className={toogleState ? classes.tab : ""} >Remove liquidity</Grid>
                 </Grid>
             </Typography>
-            {!toogleState && <AddLiquidityUI toogle={toogleState} isDisabled={isDisabled} buttonMessage={buttonMessage} />}
-            {toogleState && <RemoveLiquidityInput />}
+            {!toogleState && <AddLiquidityUI onRedirect={swapRedirectHandler} isDisabled={buttonContext.isDisabled} buttonMessage={buttonContext.message} />}
+            {toogleState && <RemoveLiquidityUI onRedirect={swapRedirectHandler} />}
         </React.Fragment>
     );
 }

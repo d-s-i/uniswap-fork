@@ -1,8 +1,8 @@
 import Image from "next/image";
 
-import styles from "./LiquidityTokenListItem.module.css";
+import styles from "./TokenListItems.module.css";
 
-function LiquidityTokenList(props) {
+function TokenListItems(props) {
     return(
         <span className={styles.item} >
             <Image src={props.src} alt={props.alt} width={20} height={20} />
@@ -11,4 +11,4 @@ function LiquidityTokenList(props) {
     );
 }
 
-export default LiquidityTokenList;
+export default TokenListItems;

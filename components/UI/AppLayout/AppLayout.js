@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { useAuthContext } from "../../../store/auth-context";
 
 import web3 from "../../../ethereum/web3";
 
-import Modal from "../Modal/Modal";
+import ErrorModal from "../Modal/ErrorModal";
 import styles from "./AppLayout.module.css";
 
 import { AppBar, Toolbar, Typography, makeStyles, Button } from "@material-ui/core";
@@ -19,7 +19,6 @@ import babyDogeLogo from "../../../public/babyDogeLogo.png";
 function AppLayout() {
     
     const context = useAuthContext();
-    const [isNetworkRight, setIsNetworkRight] = useState(true);
 
     const theme = useTheme();
 
@@ -112,7 +111,7 @@ function AppLayout() {
 
     return(
         <AppBar position="static" className={classes.appbar} >
-            {!context.isNetworkRight && <Modal message="Please connect to the right Rinkeby network" />}
+            {!context.isNetworkRight && <ErrorModal message="Please connect to the right Rinkeby network" displayButton={false} />}
             <Toolbar >
                 <Link href="/" passHref >
                     <div className={classes.menu} >

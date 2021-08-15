@@ -1,24 +1,42 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useAddLiquidityContext } from "../../store/addLiquidity-context";
 
-import { convertEthToWei, approveTokens, checkRouterAllowance } from "../../helpers/functionsHelper";
-import router, { routerAddress } from "../../ethereum/router";
+import { convertEthToWei, approveTokens, checkRouterAllowance, getDeadline, formalizeNumber } from "../../helpers/functionsHelper";
+import router from "../../ethereum/router";
 import web3 from "../../ethereum/web3";
 
 import LiquidityFormTokenInput from "./LiquidityFormTokenInput";
 import UserInputButton from "../UI/Buttons/UserInputButton";
 import SubCard from "../UI/Cards/SubCard";
-import TransactionModal from "../UI/Modal/TransactionModal";
+import TitleCard from "../UI/Cards/TitleCard";
+import HandleTransactionCard from "../UI/Cards/HandleTransactionCard";
 
 import { Typography } from "@material-ui/core";
+import Button from "@material-ui/core/Button";
+import LaunchIcon from '@material-ui/icons/Launch';
+
 
 import styles from "./AddLiquidityUI.module.css";
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles((theme) => ({
+    button: {
+      margin: theme.spacing(1),
+      textTransform: "none"
+    },
+    swapTitle: {
+        color: "#0ab5db",
+        fontWeight: "bold",
+        display: "flex",
+        alignItems: "center"
+    }
+  }));
 
 function AddLiquidityUI(props) {
 
     const liquidityContext = useAddLiquidityContext();
 
-    const [isLoading, setIsLoading] = useState({state: false, message: ""});
+    const [isLoading, setIsLoading] = useState({state: false, displayLoading: false, message: ""});
 
     const tokenName = liquidityContext.token0.name;
     const token0Amount = liquidityContext.token0.amount;
@@ -29,20 +47,17 @@ function AddLiquidityUI(props) {
     async function addLiquidity() {
         const accounts = await web3.eth.getAccounts();
 
-        const blockNumber = await web3.eth.getBlockNumber();
-        const now = await web3.eth.getBlock(blockNumber);
-        const deadline = now.timestamp + 10000;
+        const deadline = await getDeadline();
 
         const isRouterAllowed = await checkRouterAllowance(tokenName, token0Amount);
 
         if(isRouterAllowed && token0Amount !== 0) {
-
             await router.methods
                 .addLiquidityETH(
                     `${liquidityContext.token0.address}`, 
-                    `${convertEthToWei(`${parseFloat(token0Amount).toFixed(17)}`)}`, 
-                    `${convertEthToWei(`${parseFloat(token0Amount).toFixed(17) * (1 - slippage)}`)}`, // commented because  I have a problem, token0Amount is 1 wei when calculated from the quote function, so token0Amount*(1-slippage) === 0.5 wei ...
-                    `${convertEthToWei(`${parseFloat(token1Amount).toFixed(17) * (1 - slippage)}`)}`,  // need to resolve the quote problem and getting a real value
+                    `${convertEthToWei(`${formalizeNumber(token0Amount)}`)}`, 
+                    `${convertEthToWei(`${formalizeNumber(token0Amount) * (1 - slippage)}`)}`, // commented because  I have a problem, token0Amount is 1 wei when calculated from the quote function, so token0Amount*(1-slippage) === 0.5 wei ...
+                    `${convertEthToWei(`${formalizeNumber(token1Amount) * (1 - slippage)}`)}`,  // need to resolve the quote problem and getting a real value
                     accounts[0], 
                     deadline)
                 .send({ 
@@ -50,10 +65,12 @@ function AddLiquidityUI(props) {
                         value: convertEthToWei(token1Amount) 
                     })
                 .on("transactionHash", function(hash) {
-                        setIsLoading({state: true, message: `Your transaction is being processed here ${hash} Please wait.`});
+                        liquidityContext.onToken0Change({amount: ""});
+                        liquidityContext.onToken1Change({amount: ""});
+                        setIsLoading({state: true, displayLoading: true, message: `Your transaction is being processed here ${hash} Please wait.`});
                     })
                 .once("confirmation", function(confirmationNumber, receipt) {
-                        setIsLoading({state: true, message: `Your transaction have been confirmed! You can see all the details here ${receipt.blockHash}.`});
+                        setIsLoading({state: true, displayLoading: false, message: `Your transaction have been confirmed! You can see all the details here ${receipt.blockHash}.`});
                     }); // AJOUTER DU SLIPPAGE DYNAMIQUE
         }
         if(!isRouterAllowed && parseFloat(token0Amount) !== 0) {
@@ -62,20 +79,22 @@ function AddLiquidityUI(props) {
         }
     }
 
-    function closeModalHandler() {
-        setIsLoading({state: false, message: ""});
-    }
+    // function closeModalHandler() {
+    //     setIsLoading({state: false, message: ""});
+    // }
     
     return(
-        <SubCard >
-            {isLoading.state && <TransactionModal onCloseModal={closeModalHandler} message={isLoading.message} />}
-            <Typography style={{ fontWeight: "bold" }} className={styles["card-title"]} variant="h4">Add Liquidity</Typography>
-            <Typography className={styles["card-subtitle"]} variant="subtitle1">
-                {`Add liquidity for ${liquidityContext.token0.name || "--"}/${liquidityContext.token1.name || "--"} in the community liquidity pool!`}
-            </Typography>
-            <LiquidityFormTokenInput />
-            <UserInputButton onClick={addLiquidity} disabled={props.isDisabled} message={props.buttonMessage} />
-        </SubCard>
+        <React.Fragment>
+            <SubCard >
+                <TitleCard onRedirect={props.onRedirect} title="Add Liquidity" redirectionName="Swap" />
+                <Typography className={styles["card-subtitle"]} variant="subtitle1">
+                    {`Add liquidity for ${liquidityContext.token0.name || "--"}/${liquidityContext.token1.name || "--"} in the community liquidity pool!`}
+                </Typography>
+                <LiquidityFormTokenInput />
+                <UserInputButton onClick={addLiquidity} disabled={props.isDisabled} type="addLiquidity" message={props.buttonMessage} />
+            </SubCard>
+            {isLoading.state && !isLoading.isError && <HandleTransactionCard displayLoading={isLoading.displayLoading} >{isLoading.message}</HandleTransactionCard>}
+        </React.Fragment>
     );
 }
 

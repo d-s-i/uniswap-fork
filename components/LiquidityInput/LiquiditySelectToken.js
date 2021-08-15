@@ -14,7 +14,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import LiquidityTokenListItem from "./LiquidityTokenListItem";
+import TokenListItems from "../Items/TokenListItems";
 
 import styles from "./LiquiditySelectToken.module.css";
 
@@ -94,7 +94,7 @@ function LiquiditySelectToken(props) {
   if(props.defaultToken === "BNB") {
     return (
       <div className={classes.bnb} >
-        <LiquidityTokenListItem src={BNBLogo} token="BNB" alt="BNBLogo" />
+        <TokenListItems src={BNBLogo} token="BNB" alt="BNBLogo" />
       </div>
     );  
   }
@@ -112,13 +112,13 @@ function LiquiditySelectToken(props) {
       >
         <MenuItem value=""><em>Select a token</em></MenuItem>
         <MenuItem value={"BABYDOGE"}>
-          <LiquidityTokenListItem src={babyDogeLogo} token="BabyDoge" alt="babyDogeLogo" />
+          <TokenListItems src={babyDogeLogo} token="BabyDoge" alt="babyDogeLogo" />
         </MenuItem>
         <MenuItem value={"BABYTOY"}>
-          <LiquidityTokenListItem src={babyToyLogo} token="BabyToy" alt="babyToyLogo" />
+          <TokenListItems src={babyToyLogo} token="BabyToy" alt="babyToyLogo" />
         </MenuItem>
         <MenuItem value={"BABYLEASH"}>
-          <LiquidityTokenListItem src={babyLeashLogo} token="BabyLeash" alt="BabyLeash" />
+          <TokenListItems src={babyLeashLogo} token="BabyLeash" alt="BabyLeash" />
         </MenuItem>
       </Select>
     </FormControl>

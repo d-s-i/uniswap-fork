@@ -1,8 +1,8 @@
 import React from "react";
 import ModalContainer from "./ModalContainer";
-import styles from "./TransactionModal.module.css";
+import styles from "./ErrorModal.module.css";
 
-function TransactionModal(props) {
+function ErrorModalModal(props) {
 
     return(
         <React.Fragment>
@@ -10,11 +10,11 @@ function TransactionModal(props) {
             <ModalContainer selector="#modal-root">
                 <div className={styles.modal} >
                     <p>{props.message}</p>
-                    <button onClick={props.onCloseModal} >Ok</button>
+                    {props.displayButton && <button onClick={props.onCloseModal} >ERROR</button>}
                 </div>
             </ModalContainer>
         </React.Fragment>
     );
 }
 
-export default TransactionModal;
+export default ErrorModalModal;

@@ -6,6 +6,8 @@
     font-size: 1.5em;
     font-weight: bold;
     padding: 3% 0 3% 0;
+    display: flex;
+    justify-content: center;
 }
 
 .button:hover {
@@ -22,6 +24,8 @@
     font-size: 1.5em;
     font-weight: bold;
     padding: 3% 0 3% 0;
+    display: flex;
+    justify-content: center;
 }
 
 .button-disabled:hover {

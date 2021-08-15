@@ -22,6 +22,8 @@ export function getPaths(token0Address, token1Address) {
 export async function checkRouterAllowance(tokenName, tokenAmount) {
     const accounts = await web3.eth.getAccounts();
 
+    if(Number.isNaN(parseFloat(tokenAmount))) return;
+
     if(tokenName === "BABYDOGE") {
         const allowance = await babyDoge.methods.allowance(accounts[0], routerAddress).call();
         return parseFloat(allowance) > parseFloat(convertEthToWei(tokenAmount));
@@ -53,13 +55,41 @@ export async function approveTokens(tokenName) {
 
 export async function checkInput(input) {
     if(input.slice(-1) === ",") return(`${input.slice(0, -1)}.`);
-    // if(input === "0") {
-    //     swapContext.onToken0Change({ amount: "" });
-    //     swapContext.onToken1Change({ amount: "" });
-    //     return;
-    // }
     return input;
 }
+
+export async function getBalances(tokenName, account) {
+    const formalizeNumber = (number) => parseFloat(number).toFixed(2);
+    if (account) {
+        if(tokenName === "BABYDOGE") {
+            const babyDogeWeiBalance = await babyDoge.methods.balanceOf(account).call();
+            const babyDogeBalance = convertWeiToEth(babyDogeWeiBalance.toString());
+            return formalizeNumber(babyDogeBalance);
+        }
+        if(tokenName === "BABYTOY") {
+            const babyToyWeiBalance = await babyToy.methods.balanceOf(account).call();
+            const babyToyBalance = convertWeiToEth(babyToyWeiBalance.toString());
+            return formalizeNumber(babyToyBalance);
+        }
+        if(tokenName === "BABYLEASH") {
+            const babyLeashWeiBalance = await babyLeash.methods.balanceOf(account).call();
+            const babyLeashBalance = convertWeiToEth(babyLeashWeiBalance.toString());
+            return formalizeNumber(babyLeashBalance);
+        }
+        if(tokenName === "BNB") {
+            const BnbBalances =  convertWeiToEth(await web3.eth.getBalance(account));
+            return formalizeNumber(BnbBalances);
+        }
+    }
+}
+
+export async function getDeadline() {
+    const blockNumber = await web3.eth.getBlockNumber();
+    const now = await web3.eth.getBlock(blockNumber);
+    return now.timestamp + 10000;
+}
+
+export const formalizeNumber = (number) => parseFloat(number).toFixed(17);
 
 // export async function revokeTokens() {
 //     const accounts = await web3.eth.getAccounts();

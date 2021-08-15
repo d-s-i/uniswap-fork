@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useAddLiquidityContext } from "../../store/addLiquidity-context";
 
 import web3 from "../../ethereum/web3";
@@ -26,48 +26,46 @@ function LiquidityTokenInputAmount(props) {
 
     const classes = useStyles();
 
+    async function calculateCounterParty(amountInput, isCalcFirst) {
+        try {
+            const pairAddress = await factory.methods.getPair(liquidityContext.token0.address, "0xc778417E063141139Fce010982780140Aa0cD5Ab").call();
+            if(pairAddress !== "0x0000000000000000000000000000000000000000" && parseFloat(amountInput) !== 0) {
+                const uniswapV2Pair = await new web3.eth.Contract(compiledUniswapV2Pair.abi, pairAddress);
+                const reserves = await uniswapV2Pair.methods.getReserves().call();
+                let reserve0, reserve1;
+                if(isCalcFirst) {
+                    reserve0 = reserves[1];
+                    reserve1 = reserves[0];
+                } else {
+                    reserve0 = reserves[0];
+                    reserve1 = reserves[1];
+                }
+                const secondWeiAmount = await router.methods.quote(convertEthToWei(amountInput), reserve0, reserve1).call();
+               return convertWeiToEth(secondWeiAmount);
+            }
+        } catch(error) {
+            console.log(error);
+        }
+    }
+
     async function tokenAmountChangeHandler(event) {
-        // const enteredValue = await checkInput(event.target.value);
-        console.log(event.target.value);
-        const enteredValue = event.target.value;
+        const enteredValue = await checkInput(event.target.value);
         if(props.id === "token0") {
             liquidityContext.onToken0Change({ amount: enteredValue });
+            if(!liquidityContext.token0.name) return;
             if(enteredValue.slice(-1) === "." || enteredValue === "0") return;
             if(enteredValue !== "") {
-                try {
-                    const pairAddress = await factory.methods.getPair(liquidityContext.token0.address, "0xc778417E063141139Fce010982780140Aa0cD5Ab").call();
-                    if(pairAddress !== "0x0000000000000000000000000000000000000000") {
-                        const uniswapV2Pair = await new web3.eth.Contract(compiledUniswapV2Pair.abi, pairAddress);
-                        const reserves = await uniswapV2Pair.methods.getReserves().call();
-                        const reserve0 = reserves[0];
-                        const reserve1 = reserves[1];
-                        const token1WeiAmount = await router.methods.quote(convertEthToWei(enteredValue), reserve0, reserve1).call();
-                        const token1Amount = convertWeiToEth(token1WeiAmount);
-                        liquidityContext.onToken1Change({ amount: token1Amount });
-                    }
-                } catch (error) {
-                    console.log( error);
-                }
+                const token1Amount = await calculateCounterParty(enteredValue, false);
+                liquidityContext.onToken1Change({ amount: token1Amount });
             }
         }
         if(props.id === "token1") {
             liquidityContext.onToken1Change({ amount: enteredValue });
             if(enteredValue.slice(-1) === "." || enteredValue === "0") return;
+            if(!liquidityContext.token0.name) return;
             if(enteredValue !== "") {
-                try {
-                    const pairAddress = await factory.methods.getPair(liquidityContext.token0.address, "0xc778417E063141139Fce010982780140Aa0cD5Ab").call(); // /!\ PROBLEM IF THERE IS NO TOKEN0 SELECTED !
-                    if(pairAddress !== "0x0000000000000000000000000000000000000000") {
-                        const uniswapV2Pair = await new web3.eth.Contract(compiledUniswapV2Pair.abi, pairAddress);
-                        const reserves = await uniswapV2Pair.methods.getReserves().call();
-                        const reserve0 = reserves[0];
-                        const reserve1 = reserves[1];
-                        const token0WeiAmount = await router.methods.quote(convertEthToWei(enteredValue), reserve1, reserve0).call();
-                        const token0Amount = convertWeiToEth(token0WeiAmount);
-                        liquidityContext.onToken0Change({ amount: token0Amount });
-                    }
-                } catch (error) {
-                    console.log(error);
-                }
+                const token0Amount = await calculateCounterParty(enteredValue, true);
+                liquidityContext.onToken0Change({ amount: token0Amount });
             }
         }
     }
@@ -75,48 +73,41 @@ function LiquidityTokenInputAmount(props) {
     async function setInputMaxBalances() {
         if(props.id === "token0") {
             liquidityContext.onToken0Change({ amount: liquidityContext.token0.balance });
-            // console.log(Number.isNaN(Number(liquidityContext.token0.balance)));
             if(Number.isNaN(Number(liquidityContext.token0.balance))) return;
-            if(liquidityContext.token0.balance !== "" && liquidityContext.token0.balance.slice(-1) !== "." && parseFloat(liquidityContext.token0.balance) !== 0) {
-                try {
-                    const pairAddress = await factory.methods.getPair(liquidityContext.token0.address, "0xc778417E063141139Fce010982780140Aa0cD5Ab").call();
-                    if(pairAddress !== "0x0000000000000000000000000000000000000000") {
-                        const uniswapV2Pair = await new web3.eth.Contract(compiledUniswapV2Pair.abi, pairAddress);
-                        const reserves = await uniswapV2Pair.methods.getReserves().call();
-                        const reserve0 = reserves[0];
-                        const reserve1 = reserves[1];
-                        const token1WeiAmount = await router.methods.quote(convertEthToWei(liquidityContext.token0.balance), reserve0, reserve1).call();
-                        const token1Amount = convertWeiToEth(token1WeiAmount);
-                        liquidityContext.onToken1Change({ amount: token1Amount });
-                    }
-                } catch (error) {
-                    console.log(error);
-                    // buttonContext.onButtonChange("Insufficient liquidity for this trade");
-                }
+            if(
+                liquidityContext.token0.balance !== "" 
+                && liquidityContext.token0.balance.slice(-1) !== "." 
+                && parseFloat(liquidityContext.token0.balance) !== 0
+            ) {
+                const token1Amount = await calculateCounterParty(liquidityContext.token0.balance, false);
+                liquidityContext.onToken1Change({ amount: token1Amount });
             }
         }
         if(props.id === "token1") {
             liquidityContext.onToken1Change({ amount: liquidityContext.token1.balance });
             if(Number.isNaN(Number(liquidityContext.token1.balance))) return;
-            if(liquidityContext.token1.balance !== "" && liquidityContext.token1.balance.slice(-1) !== "." && parseFloat(liquidityContext.token1.balance) !== 0) {
-                try {
-                    const pairAddress = await factory.methods.getPair(liquidityContext.token0.address, "0xc778417E063141139Fce010982780140Aa0cD5Ab").call(); // /!\ PROBLEM IF THERE IS NO TOKEN0 SELECTED !
-                    if(pairAddress !== "0x0000000000000000000000000000000000000000") {
-                        const uniswapV2Pair = await new web3.eth.Contract(compiledUniswapV2Pair.abi, pairAddress);
-                        const reserves = await uniswapV2Pair.methods.getReserves().call();
-                        const reserve0 = reserves[0];
-                        const reserve1 = reserves[1];
-                        const token0WeiAmount = await router.methods.quote(convertEthToWei(liquidityContext.token0.balance), reserve1, reserve0).call();
-                        const token0Amount = convertWeiToEth(token0WeiAmount);
-                        liquidityContext.onToken0Change({ amount: token0Amount });
-                    }
-                } catch (error) {
-                    console.log(error);
-                    // buttonContext.onButtonChange("Insufficient liquidity for this trade");
-                }
+            if(
+                liquidityContext.token1.balance !== "" 
+                && liquidityContext.token1.balance.slice(-1) !== "." 
+                && parseFloat(liquidityContext.token1.balance) !== 0
+            ) {
+                const token0Amount = await calculateCounterParty(liquidityContext.token1.balance, true);
+                liquidityContext.onToken0Change({ amount: token0Amount });
             }
         }
     }
+
+    useEffect(() => {
+        async function calcOutput() {
+            if(props.id === "token0") {
+                if(liquidityContext.token0.amount !== "") {
+                    const token1Amount = await calculateCounterParty(liquidityContext.token0.amount);
+                    liquidityContext.onToken1Change({ amount: token1Amount });
+                }
+            }
+        }
+        calcOutput();
+    }, [liquidityContext.token0.name])
     
     const amount = props.id === "token0" ? liquidityContext.token0.amount : liquidityContext.token1.amount;
 

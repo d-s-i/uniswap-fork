@@ -16,7 +16,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import SwapTokenListItem from "./SwapTokenListItem";
+import TokenListItems from "../Items/TokenListItems";
 
 import styles from "./SwapSelectToken.module.css";
 
@@ -127,16 +127,16 @@ function SwapSelectToken(props) {
       >
         <MenuItem value=""><em>Select a token</em></MenuItem>
         <MenuItem value={"BABYDOGE"}>
-          <SwapTokenListItem src={babyDogeLogo} token="BabyDoge" alt="babyDogeLogo" />
+          <TokenListItems src={babyDogeLogo} token="BabyDoge" alt="babyDogeLogo" />
         </MenuItem>
         <MenuItem value={"BABYTOY"}>
-          <SwapTokenListItem src={babyToyLogo} token="BabyToy" alt="babyToyLogo" />
+          <TokenListItems src={babyToyLogo} token="BabyToy" alt="babyToyLogo" />
         </MenuItem>
         <MenuItem value={"BABYLEASH"}>
-          <SwapTokenListItem src={babyLeashLogo} token="BabyLeash" alt="BabyLeash" />
+          <TokenListItems src={babyLeashLogo} token="BabyLeash" alt="BabyLeash" />
         </MenuItem>
         <MenuItem value={"BNB"}>
-          <SwapTokenListItem src={BNBLogo} token="BNB" alt="BNBLogo" />
+          <TokenListItems src={BNBLogo} token="BNB" alt="BNBLogo" />
         </MenuItem>
       </Select>
     </FormControl>
