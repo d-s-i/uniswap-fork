@@ -13,10 +13,10 @@ function AppCard(props) {
     
     return(
         <React.Fragment>
-            {xs && !sm && <div className={props.main && styles["xs-container"] || styles["xs-secondary-container"]}  >{props.children}</div>}
-            {sm && !md && <div className={props.main && styles["sm-container"] || styles["sm-secondary-container"]}  >{props.children}</div>}
-            {md && !lg && <div className={props.main && styles.container || styles["secondary-container"]}  >{props.children}</div>}
-            {lg && <div className={props.main && styles["lg-container"] || styles["lg-secondary-container"]}  >{props.children}</div>}
+            {xs && !sm && <div className={styles["xs-secondary-container"]}  >{props.children}</div>}
+            {sm && !md && <div className={styles["sm-secondary-container"]}  >{props.children}</div>}
+            {md && !lg && <div className={styles["secondary-container"]}  >{props.children}</div>}
+            {lg && <div className={styles["lg-secondary-container"]}  >{props.children}</div>}
         </React.Fragment>
     );
 }

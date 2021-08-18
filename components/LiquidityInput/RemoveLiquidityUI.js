@@ -61,7 +61,9 @@ const useStyles = makeStyles({
         color: "#f2f2f2"
     },
     buttonPercentage: {
-        backgroundColor: "#f2f2f2"
+        backgroundColor: "#f2f2f2",
+        fontSize: "1em",
+        textTransform: "none"
     },
     amountButton: {
         border: "1px #f2f2f2 solid",
@@ -282,17 +284,17 @@ function RemoveLiquidityUI(props) {
         <React.Fragment>
             <SubCard>
                 <TitleCard onRedirect={props.onRedirect} title="Remove Liquidity" redirectionName="Swap" />
-                <Typography className={styles["card-subtitle"]} variant="subtitle1">
+                <Typography style={{fontSize: "1.2em"}} className={styles["card-subtitle"]} variant="subtitle1">
                     {token.name ? `Remove liquidity for ${token.name }` : <span className={styles["select-token"]} >Select a token</span>}
                 </Typography>
                 <InsideSubCard>
-                    <Typography variant="subtitle1" style={{fontSize: "1.5em"}} align="center" >Choose the token you want to withdraw liquidity from :</Typography>
+                    <Typography variant="subtitle1" style={{fontSize: "1.4em"}} align="center" >Choose the token you want to withdraw liquidity from :</Typography>
                     <div className={styles["choose-token"]} >
                         <Button
                             onClick={chooseBabyDogeHandler}
                             variant="contained"
                             className={classes.buttonPercentage}
-                            startIcon={<Image src={babyDogeLogo} width="25px" height="25px" alt="babydoge logo" />}
+                            startIcon={<Image src={babyDogeLogo} width="20px" height="20px" alt="babydoge logo" />}
                         >
                             BabyDoge
                         </Button>
@@ -300,7 +302,7 @@ function RemoveLiquidityUI(props) {
                             onClick={chooseBabyToyHandler}
                             variant="contained"
                             className={classes.buttonPercentage}
-                            startIcon={<Image src={babyToyLogo} width="25px" height="25px" alt="babydoge logo" />}
+                            startIcon={<Image src={babyToyLogo} width="20px" height="20px" alt="babydoge logo" />}
                         >
                             BabyToy
                         </Button>
@@ -308,12 +310,12 @@ function RemoveLiquidityUI(props) {
                             onClick={chooseBabyLeashHandler}
                             variant="contained"
                             className={classes.buttonPercentage}
-                            startIcon={<Image src={babyLeashLogo} width="25px" height="25px" alt="babydoge logo" />}
+                            startIcon={<Image src={babyLeashLogo} width="20px" height="20px" alt="babydoge logo" />}
                         >
                             BabyLeash
                         </Button>
                     </div>
-                    <Typography variant="subtitle1" style={{fontSize: "1.5em"}} align="center" >Select the amount of liquidity you want to withdraw :</Typography>
+                    <Typography variant="subtitle1" style={{fontSize: "1.4em"}} align="center" >Select the amount of liquidity you want to withdraw :</Typography>
                     <div className={styles["choose-amount"]} >
                         <Typography className={classes.percentage}>{`${percentageLPToken}%`}</Typography>
                         <Slider
@@ -338,6 +340,7 @@ function RemoveLiquidityUI(props) {
                     <Typography variant="subtitle1" align="right" style={{fontSize: "1.5em"}} className={styles.amounts} >{`${returnBigNumber4Decimals(token0Amount)} ${token.name}`}</Typography>
                     <Typography variant="subtitle1" align="right" style={{fontSize: "1.5em"}} className={styles.amounts} >{`${returnBigNumber4Decimals(token1Amount)} BNB`}</Typography>
                 </InsideSubCard>
+                <div className={styles.margin} ></div>
                 <UserInputButton onClick={removeLiquidity} disabled={isDisabled} message={buttonMessage} type="removeLiquidity" />
             </SubCard>
             {isLoading.state && !isLoading.isError && <HandleTransactionCard displayLoading={isLoading.displayLoading} >{isLoading.message}</HandleTransactionCard>}

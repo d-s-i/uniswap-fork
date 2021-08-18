@@ -85,21 +85,30 @@ function AddLiquidityUI(props) {
         }
     }
 
-    // function closeModalHandler() {
-    //     setIsLoading({state: false, message: ""});
-    // }
+    function closeModalHandler() {
+        setIsLoading((prevState) => {
+            return {
+                ...prevState,
+                state: false, 
+                displayIsLoading: false,
+                message: ""
+            };
+        });
+    }
     
     return(
         <React.Fragment>
-            <SubCard >
+            <div className={styles.top} >
                 <TitleCard onRedirect={props.onRedirect} title="Add Liquidity" redirectionName="Swap" />
-                <Typography className={styles["card-subtitle"]} variant="subtitle1">
+                <Typography style={{fontSize: "1.2em"}} variant="subtitle1">
                     {`Add liquidity for ${liquidityContext.token0.name || "--"}/${liquidityContext.token1.name || "--"} in the community liquidity pool!`}
                 </Typography>
+            </div>
+            <div className={styles.main} >
                 <LiquidityFormTokenInput />
                 <UserInputButton onClick={addLiquidity} disabled={props.isDisabled} type="addLiquidity" message={props.buttonMessage} />
-            </SubCard>
-            {isLoading.state && !isLoading.isError && <HandleTransactionCard displayLoading={isLoading.displayLoading} >{isLoading.message}</HandleTransactionCard>}
+            </div>
+            {isLoading.state && !isLoading.isError && <HandleTransactionCard onCloseModal={closeModalHandler} displayLoading={isLoading.displayLoading} >{isLoading.message}</HandleTransactionCard>}
         </React.Fragment>
     );
 }

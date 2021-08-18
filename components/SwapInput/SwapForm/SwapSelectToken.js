@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { useAddLiquidityContext } from "../../../store/addLiquidity-context";
 import { useSwapContext } from "../../../store/swap-context";
+import { useScreenSizeContext } from '../../../store/screenSize-context';
 
 import babyDogeLogo from "../../../public/babyDogeLogo.png";
 import BNBLogo from "../../../public/BNBLogo.png";
@@ -20,59 +20,69 @@ import TokenListItems from "../../Items/TokenListItems";
 
 import styles from "./SwapSelectToken.module.css";
 
-const useStyles = makeStyles((theme) => ({
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 200,
-    color: "white",
-    "&:hover": {
-      backgroundColor: "#404040"
-    }
-  },
-  selectEmpty: {
-    marginTop: theme.spacing(2),
-    color: "white"
-  },
-  input: {
-    color: "white"
-  },
-  select: {
-    color: "white",
-    border: "1px white solid",
-    "& > svg": {
-      color: "white",
-      
-    },
-    "& .data-shrink": {
-      color: "white"
-    },
-    shrinked: {
-      color: "white"
-    },
-  },
-  bnb: {
-    margin: theme.spacing(1),
-    padding: theme.spacing(3),
-    minWidth: 200,
-    height: "50px",
-    display: "flex",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    border: "1px grey solid",
-    borderRadius: "1em",
-    color: "white",
-    "&:hover": {
-      backgroundColor: "#262626",
-    }
-  }
-}));
-
 function SwapSelectToken(props) {
 
   // BabyDoge Test Rinkeby address : 0x76c51246641F711aAAe87C8Ef2C95da186798FB2
   // BabyToy Test Rinkeby address : 0xe150341e165379cbc8b5f5e0d46Eff220E318F45
   // BabyLeash Test Rinkeby address : 0x6E78d42cCe7E83FEBfE9ed3Bb5f3074A6eEE7e7c
   // WETH address for test purposes : 0xc778417E063141139Fce010982780140Aa0cD5Ab
+
+  const screenSizeContext = useScreenSizeContext();
+
+  const useStyles = makeStyles((theme) => ({
+    formControl: {
+      margin: theme.spacing(1),
+      minWidth: ((screenSizeContext.size === "xs" || screenSizeContext.size === "sm") && 145) || 130,
+      minHeight: 35,
+      borderRadius: "2em",
+      // border: "1px red solid",
+      "&:hover": {
+        backgroundColor: "#404040",
+      }
+    },
+    input: {
+      color: "white",
+      fontSize: "1.2em",
+      width: "100%",
+      height: "100%",
+      display: "flex",
+      alignItems: "center",
+      padding: "0 0 0 7%",
+      minHeight: 35,
+      "&.Mui-focused": {
+        color: "white",
+        margin: 0,
+      }
+    },
+    select: {
+      color: "white",
+      fontSize: "1.3em",
+      borderRadius: "2em",
+      position: "absolute",
+      width: "100%",
+      // display: "flex",
+      // alignItems: "center",
+      height: "100%",
+      border: "1px white solid",
+      backgroundColor: "none",
+      "& .MuiSelect-icon": {
+        color: "white",
+        width: 18,
+        // position: "absolute",
+        marginTop: "3px",
+        height: 18,
+
+      },
+      "& .MuiSelect-selectMenu": {
+        padding: "0 0 0 7%",
+        height: "100%",
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        // position: "relative",
+      },
+    }
+  }));
 
   const swapContext = useSwapContext();
   const classes = useStyles();
@@ -116,7 +126,8 @@ function SwapSelectToken(props) {
 
   return(
     <FormControl variant="filled" className={classes.formControl} hiddenLabel={props.id === "token0" ? token0 ? true : false : token1 ? true : false} noValidate autoComplete="off">
-      {(props.id === "token0" ? !token0 : !token1) && <InputLabel className={classes.input} id="demo-simple-select-outlined-label">Select a Token</InputLabel>}
+      {(props.id === "token0" ? !token0 : !token1) && <label className={classes.input} id="demo-simple-select-outlined-label">Select a Token</label>}
+      {/* {(props.id === "token0" ? !token0 : !token1) && <InputLabel className={classes.input} id="demo-simple-select-outlined-label">Select a Token</InputLabel>} */}
       <Select
         labelId="demo-simple-select-outlined-label"
         id="demo-simple-select-outlined"
@@ -124,18 +135,19 @@ function SwapSelectToken(props) {
         onChange={tokenChangeHandler}
         label="token"
         className={classes.select}
+        disableUnderline
       >
         <MenuItem value=""><em>Select a token</em></MenuItem>
-        <MenuItem value={"BABYDOGE"}>
+        <MenuItem value={"BABYDOGE"} className={classes.selectMenu} >
           <TokenListItems src={babyDogeLogo} token="BabyDoge" alt="babyDogeLogo" />
         </MenuItem>
-        <MenuItem value={"BABYTOY"}>
+        <MenuItem value={"BABYTOY"} className={classes.selectMenu} >
           <TokenListItems src={babyToyLogo} token="BabyToy" alt="babyToyLogo" />
         </MenuItem>
-        <MenuItem value={"BABYLEASH"}>
+        <MenuItem value={"BABYLEASH"} className={classes.selectMenu} >
           <TokenListItems src={babyLeashLogo} token="BabyLeash" alt="BabyLeash" />
         </MenuItem>
-        <MenuItem value={"BNB"}>
+        <MenuItem value={"BNB"} className={classes.selectMenu} >
           <TokenListItems src={BNBLogo} token="BNB" alt="BNBLogo" />
         </MenuItem>
       </Select>

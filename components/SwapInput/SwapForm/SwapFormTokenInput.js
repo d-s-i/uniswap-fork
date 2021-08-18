@@ -19,9 +19,15 @@ import styles from "./SwapFormTokenInput.module.css";
 const useStyles = makeStyles({
     swapIcon: {
         color: "#0ab5db", 
+        marginBottom: "4%",
+        marginTop: "4%",
         "&:hover": {
             cursor: "pointer"
         } 
+    },
+    swapForm: {
+        marginBottom: "10%",
+        marginTop: "10%",
     }
 });
 
@@ -54,7 +60,7 @@ function SwapFormTokenInput() {
     }
     
     return(
-        <FormControl noValidate autoComplete="off">
+        <FormControl className={classes.swapForm} noValidate autoComplete="off">
             <SwapTokenInputAmount id="token0" name="token0" balances={balancesToken0} defaultToken={""} />
             <div className={styles.middle} >
                 <SwapVerticalCircleIcon className={classes.swapIcon} onClick={exchangeToken0WithToken1} />

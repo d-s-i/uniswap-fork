@@ -7,10 +7,20 @@ import { getBalances } from "../../../helpers/functionsHelper";
 import LiquidityTokenInputAmount from "./LiquidityTokenInputAmount";
 
 import { FormControl  } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 
 import styles from "./LiquidityFormTokenInput.module.css";
 
+const useStyles = makeStyles({
+    liquidityForm: {
+        marginBottom: "10%",
+        marginTop: "10%",
+    }
+});
+
 function LiquidityFormTokenInput(props) {
+
+    const classes = useStyles();
     
     const [balancesToken0, setBalancesToken0] = useState("");
     const [balancesToken1, setBalancesToken1] = useState("");
@@ -31,7 +41,7 @@ function LiquidityFormTokenInput(props) {
     }, [liquidityContext.token0.name, liquidityContext.token1.name, authContext.accounts[0]]);
     
     return(
-        <FormControl noValidate autoComplete="off">
+        <FormControl  className={classes.liquidityForm} noValidate autoComplete="off">
             <LiquidityTokenInputAmount id="token0" name="token0" balances={balancesToken0} defaultToken={""} />
             <LiquidityTokenInputAmount id="token1" name="token1" balances={balancesToken1} defaultToken={"BNB"} /> 
         </FormControl>

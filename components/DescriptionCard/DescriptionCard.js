@@ -49,7 +49,7 @@ const useStyles = makeStyles({
         justifyContent: "space-around"
     }
 
-}, { name: "MuiExample_Component" });
+});
 
 function DescriptionCard(props) {
     const styles = useStyles();

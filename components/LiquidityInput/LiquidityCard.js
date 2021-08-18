@@ -76,15 +76,17 @@ function LiquidityCard(props) {
         router.push("/swap");
     }
 
+    // console.log(buttonContext.message);
+
     return(
         <React.Fragment>
             <Typography component="div">
-                <Grid component="label" container justifyContent="center" alignItems="center" spacing={1}  >
-                    <Grid item className={toogleState ? "" : classes.tab} >Add liquidity</Grid>
+                <Grid component="label" style={{marginBottom :"3%"}} container justifyContent="center" alignItems="center" spacing={1}  >
+                    <Grid item className={toogleState ? "" : classes.tab} style={{fontSize: "0.8em"}} >Add liquidity</Grid>
                         <FormControlLabel
                             style={{ margin: "0" }} control={<PurpleSwitch size="medium" checked={toogleState} onChange={handleChange} name="checkedA" />}
                         />
-                    <Grid item className={toogleState ? classes.tab : ""} >Remove liquidity</Grid>
+                    <Grid item className={toogleState ? classes.tab : ""} style={{fontSize: "0.8em"}} >Remove liquidity</Grid>
                 </Grid>
             </Typography>
             {!toogleState && <AddLiquidityUI onRedirect={swapRedirectHandler} isDisabled={buttonContext.isDisabled} buttonMessage={buttonContext.message} />}

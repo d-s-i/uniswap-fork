@@ -216,18 +216,33 @@ function SwapCard() {
         nextRouter.push("/liquidity");
     }
 
+    function closeModalHandler() {
+        setIsLoading((prevState) => {
+            return {
+                ...prevState,
+                state: false, 
+                isError: false, 
+                message: ""
+            }
+        });
+    }
+
     return(
         <React.Fragment>
-            <SubCard>
+            {/* <SubCard> */}
+            <div className={styles.top} >
                 <TitleCard onRedirect={liquidityRedirectHandler} title="Swap" redirectionName="Add Liquidity" />
-                <Typography className={styles["card-subtitle"]} variant="subtitle1">
+                <Typography style={{fontSize: "1.2em"}} variant="subtitle1">
                     {token0Name && token1Name ? `Exchange your ${token0Name || "--"} for ${token1Name || "--"}` : "Select a token"}
                 </Typography>
-                {isLoading.state && isLoading.isError && <ErrorModal onCloseModal={closeModalHandler} message={isLoading.message} displayButton={true} />}
+            </div>
+            <div className={styles.main} >
                 <SwapFormTokenInput />
                 <UserInputButton onClick={swap} disabled={buttonContext.isDisabled} message={buttonContext.message} />
-            </SubCard>
-            {isLoading.state && !isLoading.isError && <HandleTransactionCard displayLoading={isLoading.displayLoading} >{isLoading.message}</HandleTransactionCard>}
+            </div>
+            {/* </SubCard> */}
+                {isLoading.state && isLoading.isError && <ErrorModal onCloseModal={closeModalHandler} message={isLoading.message} displayButton={true} />}
+            {isLoading.state && !isLoading.isError && <HandleTransactionCard onCloseModal={closeModalHandler} displayLoading={isLoading.displayLoading} >{isLoading.message}</HandleTransactionCard>}
         </React.Fragment>
     );
 }

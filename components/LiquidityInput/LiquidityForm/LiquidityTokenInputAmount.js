@@ -15,8 +15,9 @@ import styles from "./LiquidityTokenInputAmount.module.css";
 
 const useStyles = makeStyles((theme) => ({
     liquidityBalance: {
-      marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(0.5),
+        fontSize: "1em"
     },
   }));
 
@@ -119,7 +120,7 @@ function LiquidityTokenInputAmount(props) {
             </div>
             <div className={styles.displayBalances} >
                 <Typography variant="subtitle1" className={classes.liquidityBalance} >{`Balances: ${props.balances || "--"}`}</Typography>
-                <button className={styles["max-button"]} onClick={setInputMaxBalances} >Max</button>
+                <button className={styles["max-button"]} onClick={setInputMaxBalances} >(Max)</button>
             </div>
         </div>
     );     

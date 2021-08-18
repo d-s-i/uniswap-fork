@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAddLiquidityContext } from "../../../store/addLiquidity-context";
+import { useScreenSizeContext } from '../../../store/screenSize-context';
 
 import babyDogeLogo from "../../../public/babyDogeLogo.png";
 import BNBLogo from "../../../public/BNBLogo.png";
@@ -18,54 +19,80 @@ import TokenListItems from "../../Items/TokenListItems";
 
 import styles from "./LiquiditySelectToken.module.css";
 
-const useStyles = makeStyles((theme) => ({
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 200,
-    color: "white",
-    "&:hover": {
-      backgroundColor: "#404040"
-    }
-  },
-  selectEmpty: {
-    marginTop: theme.spacing(2),
-    color: "white"
-  },
-  input: {
-    color: "white"
-  },
-  select: {
-    color: "white",
-    border: "1px white solid",
-    "& > svg": {
-      color: "white",
-      
-    },
-    "& .data-shrink": {
-      color: "white"
-    },
-    shrinked: {
-      color: "white"
-    },
-  },
-  bnb: {
-    margin: theme.spacing(1),
-    padding: theme.spacing(3),
-    minWidth: 200,
-    height: "50px",
-    display: "flex",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    border: "1px grey solid",
-    borderRadius: "1em",
-    color: "white",
-    "&:hover": {
-      backgroundColor: "#262626",
-    }
-  }
-}));
-
 function LiquiditySelectToken(props) {
+
+  const screenSizeContext = useScreenSizeContext();
+
+  const useStyles = makeStyles((theme) => ({
+    formControl: {
+      margin: theme.spacing(1),
+      minWidth: ((screenSizeContext.size === "xs" || screenSizeContext.size === "sm") && 145) || 130,
+      minHeight: 35,
+      borderRadius: "2em",
+      // border: "1px red solid",
+      "&:hover": {
+        backgroundColor: "#404040",
+      }
+    },
+    input: {
+      color: "white",
+      fontSize: "1.2em",
+      width: "100%",
+      height: "100%",
+      display: "flex",
+      alignItems: "center",
+      padding: "0 0 0 7%",
+      minHeight: 35,
+      "&.Mui-focused": {
+        color: "white",
+        margin: 0,
+      }
+    },
+    select: {
+      color: "white",
+      fontSize: "1.3em",
+      borderRadius: "2em",
+      position: "absolute",
+      width: "100%",
+      // display: "flex",
+      // alignItems: "center",
+      height: "100%",
+      border: "1px white solid",
+      backgroundColor: "none",
+      "& .MuiSelect-icon": {
+        color: "white",
+        width: 18,
+        // position: "absolute",
+        marginTop: "3px",
+        height: 18,
+  
+      },
+      "& .MuiSelect-selectMenu": {
+        padding: "0 0 0 7%",
+        height: "100%",
+        width: "100%",
+        display: "flex",
+        alignItems: "center",
+        // position: "relative",
+      },
+    },
+    bnb: {
+      margin: theme.spacing(1),
+      paddingLeft: theme.spacing(3),
+      minWidth: ((screenSizeContext.size === "xs" || screenSizeContext.size === "sm") && 145) || 130,
+      minHeight: 35,
+      display: "flex",
+      justifyContent: "flex-start",
+      alignItems: "center",
+      border: "1px grey solid",
+      borderRadius: "2em",
+      color: "white",
+      "&:hover": {
+        backgroundColor: "#262626",
+      }
+    }
+  }));
+  
 
   const addLiquidityContext = useAddLiquidityContext();
   const classes = useStyles();
@@ -101,7 +128,7 @@ function LiquiditySelectToken(props) {
 
   return(
     <FormControl variant="filled" className={classes.formControl} hiddenLabel={props.id === "token0" ? token0 ? true : false : token1 ? true : false} noValidate autoComplete="off">
-      {!token0 && <InputLabel className={classes.input} id="demo-simple-select-outlined-label">Select a Token</InputLabel>}
+      {!token0 && <label className={classes.input} id="demo-simple-select-outlined-label">Select a Token</label>}
       <Select
         labelId="demo-simple-select-outlined-label"
         id="demo-simple-select-outlined"
@@ -109,6 +136,7 @@ function LiquiditySelectToken(props) {
         onChange={tokenChangeHandler}
         label="token"
         className={classes.select}
+        disableUnderline
       >
         <MenuItem value=""><em>Select a token</em></MenuItem>
         <MenuItem value={"BABYDOGE"}>

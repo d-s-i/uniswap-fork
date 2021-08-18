@@ -1,8 +1,23 @@
-.card-title {
-    color: #0ab5db;
-    padding-bottom: 3%;
+.top {
+    color: white;
+    border: 1px white solid;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    padding: 5% 5% 5% 5%;
+    /* margin-bottom: 3%; */
+    background-color: #1a1a1a ;
+    display: flex;
+    flex-direction: column;
 }
 
-.card-subtitle {
-    padding-bottom: 5%;
+.main {
+    color: white;
+    border: 1px white solid;
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    padding: 0% 5% 5% 5%;
+    /* margin-bottom: 3%; */
+    background-color: #1a1a1a ;
+    display: flex;
+    flex-direction: column;
 }

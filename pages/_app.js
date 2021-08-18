@@ -3,6 +3,7 @@ import { AuthContextProvider } from "../store/auth-context";
 import { AddLiquidityContextProvider } from "../store/addLiquidity-context";
 import { SwapContextProvider } from "../store/swap-context";
 import { ButtonContextProvider } from "../store/buttonMessage-context";
+import { ScreenSizeContextProvider } from "../store/screenSize-context";
 
 import CssBaseline from '@material-ui/core/CssBaseline';
 
@@ -36,7 +37,9 @@ export default function MyApp(props) {
           <AddLiquidityContextProvider>
             <SwapContextProvider>
               <ButtonContextProvider>
-                <Component {...pageProps} />
+                <ScreenSizeContextProvider>
+                  <Component {...pageProps} />
+                </ScreenSizeContextProvider>
               </ButtonContextProvider>
             </SwapContextProvider>
           </AddLiquidityContextProvider>

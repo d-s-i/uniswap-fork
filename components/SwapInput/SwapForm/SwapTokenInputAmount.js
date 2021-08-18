@@ -18,7 +18,8 @@ import styles from "./SwapTokenInputAmount.module.css";
 const useStyles = makeStyles((theme) => ({
     swapBalance: {
       marginLeft: theme.spacing(1),
-      marginRight: theme.spacing(1),
+      marginRight: theme.spacing(0.5),
+      fontSize: "1em"
     },
   }));
 
@@ -43,7 +44,6 @@ function SwapTokenInputAmount(props) {
                 rawPaths
             ).call();
             const token1WeiAmount = amountsOut.slice(-1); 
-            console.log(convertWeiToEth(token1WeiAmount));
 
             return convertWeiToEth(token1WeiAmount);
         } catch (error) {
@@ -189,7 +189,7 @@ function SwapTokenInputAmount(props) {
             </div>
             <div className={styles.displayBalances} >
                 <Typography variant="subtitle1" className={classes.swapBalance} >{`Balances: ${props.balances || "--"}`}</Typography>
-                <button className={styles["max-button"]} onClick={setInputMaxBalances} >Max</button>
+                <button className={styles["max-button"]} onClick={setInputMaxBalances} >(Max)</button>
             </div>
         </div>
     );     

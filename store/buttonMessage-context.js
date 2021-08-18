@@ -17,7 +17,7 @@ export function ButtonContextProvider(props) {
         token0Context = swapContext.token0;
         token1Context = swapContext.token1;
     }
-    if(liquidityContext.token0.name && !swapContext.token0.name && !swapContext.token1.name) {
+    if(liquidityContext.token1.name && !swapContext.token0.name && !swapContext.token1.name) {
         defaultMessage = "Add Liquidity"
         token0Context = liquidityContext.token0;
         token1Context = liquidityContext.token1;
@@ -42,7 +42,7 @@ export function ButtonContextProvider(props) {
             setIsDisabled(true);
             return;
         }
-        if(!token0Context) return;
+        if(!token0Context || token0Context.amount === undefined || token1Context.amount === undefined) return;
         if(token0Context.amount === "" || token1Context.amount === "" || token0Context.amount === "0" || token1Context.amount === "0") {
             message = "Start entering an amount";
             setButtonMessage(message);
@@ -50,6 +50,7 @@ export function ButtonContextProvider(props) {
             return;
         }
         if(Number.isNaN(Number(token0Context.amount))) {
+            console.log(token0Context.amount);
             message = `Please enter a valid ${token0Context.name} amount`;
             setButtonMessage(message);
             setIsDisabled(true);
@@ -76,7 +77,7 @@ export function ButtonContextProvider(props) {
         try {
             const isAllowed = await checkRouterAllowance(token0Context.name, token0Context.amount);
     
-            if((isAllowed || token0Context.name === "BNB") && token0Context.amount !== "0" && token1Context.amount !== "0") {
+            if((isAllowed || token0Context.name === "BNB") &&  token0Context.amount !== "0" && token1Context.amount !== "0") {
                 message = defaultMessage;
                 setIsDisabled(false);
             }
@@ -84,65 +85,9 @@ export function ButtonContextProvider(props) {
                 message = `Approve ${token0Context.name}`;
                 setIsDisabled(false);
             }
-            if(!token0Context.amount ) {
-                message = `Enter a ${token0Context.name} amount`;
-            }
-            if(!token1Context.amount) {
-                message = `Enter a ${token1Context.name} amount`;
-            }
         } catch(error) {
             message = "Invalid Input";
         }
-        // if(errorMessage) {
-        //     message = errorMessage;
-        //     setButtonMessage(message);
-        //     setIsDisabled(true);
-        //     return;
-        // }
-        // if(swapContext.token0.amount === "" || swapContext.token1.amount === "" || swapContext.token0.amount === "0" || swapContext.token1.amount === "0") {
-        //     message = "Start entering an amount";
-        //     setButtonMessage(message);
-        //     setIsDisabled(true);
-        //     return;
-        // }
-        // if(Number.isNaN(Number(swapContext.token0.amount))) {
-        //     message = `Please enter a valid ${swapContext.token0.name} amount`;
-        //     setButtonMessage(message);
-        //     setIsDisabled(true);
-        //     return;
-        // } 
-        // if(Number.isNaN(Number(swapContext.token1.amount))) {
-        //     message = `Please enter a valid ${swapContext.token1.name} amount`;
-        //     setButtonMessage(message);
-        //     setIsDisabled(true);
-        //     return;
-        // } 
-        // if(swapContext.token0.name === swapContext.token1.name) {
-        //     message = "Please, select two different tokens";
-        //     setButtonMessage(message);
-        //     setIsDisabled(true);
-        //     return
-        // }
-        // try {
-        //     const isAllowed = await checkRouterAllowance(swapContext.token0.name, swapContext.token0.amount);
-    
-        //     if((isAllowed || swapContext.token0.name === "BNB") && swapContext.token0.amount !== "0" && swapContext.token1.amount !== "0") {
-        //         message = "Swap";
-        //         setIsDisabled(false);
-        //     }
-        //     if(!isAllowed && swapContext.token0.name !== "BNB") {
-        //         message = `Approve ${swapContext.token0.name}`;
-        //         setIsDisabled(false);
-        //     }
-        //     if(!swapContext.token0.amount ) {
-        //         message = `Enter a ${swapContext.token0.name} amount`;
-        //     }
-        //     if(!swapContext.token1.amount) {
-        //         message = `Enter a ${swapContext.token1.name} amount`;
-        //     }
-        // } catch(error) {
-        //     message = "Invalid Input";
-        // }
         setButtonMessage(message);
     }
     useEffect(() => {
