@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useSwapContext } from "../../../store/swap-context";
 import { useButtonContext } from "../../../store/buttonMessage-context";
 
-import { convertEthToWei, convertWeiToEth, getPaths, checkInput, formalizeNumber } from "../../../helpers/functionsHelper";
+import { convertEthToWei, convertWeiToEth, getPaths, formalizeNumber } from "../../../helpers/functionsHelper";
 import web3 from "../../../ethereum/web3";
 import router from "../../../ethereum/router";
 import compiledUniswapV2Pair from "../../../ethereum/contracts/core/build/UniswapV2Pair.json";
@@ -85,17 +85,21 @@ function SwapTokenInputAmount(props) {
 
     async function tokenAmountChangeHandler(event) {
 
-        const enteredValue = await checkInput(event.target.value);
+        const enteredValue = event.target.value.slice(-1) === "," ? `${event.target.value.slice(0, -1)}.` : event.target.value;
         
         if(props.id === "token0") {  
+            console.log("goes into token0");
             swapContext.onToken0Change({ amount: enteredValue });
 
             if(enteredValue.slice(-1) === "." || parseFloat(enteredValue) === 0) return;
+            console.log("goes after check . and === 0");
             if(enteredValue === "") {
                 swapContext.onToken1Change({ amount: "" });
+                console.log("goes into ''");
             }
             
             if(enteredValue !== "" && enteredValue.slice(-1) !== ".") {
+                console.log("calculate amount out (last step)");
                 const token1Amount = await calculateAmountsOut(enteredValue);
                 swapContext.onToken1Change({ amount: token1Amount });
             }

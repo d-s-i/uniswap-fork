@@ -6,7 +6,7 @@ import web3 from "../../../ethereum/web3";
 import router from "../../../ethereum/router";
 import compiledUniswapV2Pair from "../../../ethereum/contracts/core/build/UniswapV2Pair.json";
 import factory from "../../../ethereum/factory";
-import { convertWeiToEth, convertEthToWei, checkInput } from "../../../helpers/functionsHelper";
+import { convertWeiToEth, convertEthToWei } from "../../../helpers/functionsHelper";
 
 import LiquiditySelectToken from "./LiquiditySelectToken";
 import { Typography, makeStyles } from "@material-ui/core";
@@ -57,7 +57,8 @@ function LiquidityTokenInputAmount(props) {
     }
 
     async function tokenAmountChangeHandler(event) {
-        const enteredValue = await checkInput(event.target.value);
+        const enteredValue = event.target.value.slice(-1) === "," ? `${event.target.value.slice(0, -1)}.` : event.target.value;
+
         if(props.id === "token0") {
             liquidityContext.onToken0Change({ amount: enteredValue });
             if(!liquidityContext.token0.name) return;

@@ -53,11 +53,6 @@ export async function approveTokens(tokenName) {
     }
 }
 
-export async function checkInput(input) {
-    if(input.slice(-1) === ",") return(`${input.slice(0, -1)}.`);
-    return input;
-}
-
 export async function getBalances(tokenName, account) {
     const formalizeNumber = (number) => parseFloat(number).toFixed(2);
     if (account) {
