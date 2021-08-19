@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useSwapContext } from "../../../store/swap-context";
 import { useButtonContext } from "../../../store/buttonMessage-context";
 
-import { convertEthToWei, convertWeiToEth, getPaths, checkInput } from "../../../helpers/functionsHelper";
+import { convertEthToWei, convertWeiToEth, getPaths, checkInput, formalizeNumber } from "../../../helpers/functionsHelper";
 import web3 from "../../../ethereum/web3";
 import router from "../../../ethereum/router";
 import compiledUniswapV2Pair from "../../../ethereum/contracts/core/build/UniswapV2Pair.json";
@@ -40,14 +40,22 @@ function SwapTokenInputAmount(props) {
             const rawPaths = getPaths(token0Address, token1Address);
 
             const amountsOut = await router.methods.getAmountsOut(
-                convertEthToWei(value), 
+                convertEthToWei(formalizeNumber(value)), 
                 rawPaths
             ).call();
             const token1WeiAmount = amountsOut.slice(-1); 
 
             return convertWeiToEth(token1WeiAmount);
         } catch (error) {
-            buttonContext.onButtonChange("Insufficient liquidity for this trade");
+            if(error.toString().includes("INSUFFICIENT_INPUT_AMOUNT")) {
+                buttonContext.onButtonChange("Insuficient input amount");
+                return;
+            }
+            if(!swapContext.token0.name) {
+                buttonContext.onButtonChange("Please select a token");
+            } else {
+                buttonContext.onButtonChange("Insufficient liquidity for this trade");
+            }
         }
     }
 
@@ -56,14 +64,22 @@ function SwapTokenInputAmount(props) {
             const rawPaths = getPaths(token0Address, token1Address);
                     
             const amountsIn = await router.methods.getAmountsIn(
-                convertEthToWei(value), 
+                convertEthToWei(formalizeNumber(value)), 
                 rawPaths
             ).call(); 
 
             const token0WeiAmount = amountsIn[0]; 
             return convertWeiToEth(token0WeiAmount);
         } catch(error) {
-            buttonContext.onButtonChange("Insufficient liquidity for this trade");
+            if(error.code === 32603) {
+                buttonContext.onButtonChange("Insuficient input amount");
+                return;
+            }
+            if(!swapContext.token0.name) {
+                buttonContext.onButtonChange("Please select a token");
+            } else {
+                buttonContext.onButtonChange("Insufficient liquidity for this trade");
+            }
         }
     }
 
@@ -74,19 +90,26 @@ function SwapTokenInputAmount(props) {
         if(props.id === "token0") {  
             swapContext.onToken0Change({ amount: enteredValue });
 
-            if(enteredValue.slice(-1) === "." || enteredValue === "0") return;
+            if(enteredValue.slice(-1) === "." || parseFloat(enteredValue) === 0) return;
+            if(enteredValue === "") {
+                swapContext.onToken1Change({ amount: "" });
+            }
             
-            if(enteredValue !== "" && enteredValue.slice(-1) !== "." && parseFloat(enteredValue) !== 0) {
+            if(enteredValue !== "" && enteredValue.slice(-1) !== ".") {
                 const token1Amount = await calculateAmountsOut(enteredValue);
                 swapContext.onToken1Change({ amount: token1Amount });
             }
         }
         if(props.id === "token1") {
+            console.log(enteredValue);
             swapContext.onToken1Change({ amount: enteredValue });
 
-            if(enteredValue.slice(-1) === "." || enteredValue === "0") return;
+            if(enteredValue.slice(-1) === "." || parseFloat(enteredValue) === 0) return;
+            if(enteredValue === "") {
+                swapContext.onToken1Change({ amount: "" });
+            }
             
-            if(enteredValue !== "" && enteredValue.slice(-1) !== "." && parseFloat(enteredValue) !== 0) {
+            if(enteredValue !== "" && enteredValue.slice(-1) !== ".") {
                 const token0Amount = await calculateAmountsIn(enteredValue);
                 swapContext.onToken0Change({ amount: token0Amount });
             }
@@ -178,7 +201,7 @@ function SwapTokenInputAmount(props) {
                 <SwapSelectToken mode={props.mode} id={props.id} defaultToken={props.defaultToken} />
                 <input 
                     className={styles.input} 
-                    value={amount ? amount.length > 8 ? Math.floor(amount * 1000000) / 1000000 : amount : ""} 
+                    value={amount} 
                     onFocus={focusHandler} 
                     onChange={tokenAmountChangeHandler}
                     type="text" 

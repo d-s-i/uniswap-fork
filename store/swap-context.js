@@ -6,11 +6,11 @@ export function SwapContextProvider(props) {
     const [token0, setToken0] = useState({name: "", address: "", amount: "", focus: false, approved: false, balance: 0});
     const [token1, setToken1] = useState({name: "", address: "", amount: "", focus: false, approved: false, balance: 0});
 
-    function token0ChangeHandler(token) {
-        setToken0((previousData) => ({...previousData, ...token}));
+    function token0ChangeHandler(tokenData) {
+        setToken0((previousData) => ({...previousData, ...tokenData}));
     }
-    function token1ChangeHandler(token) {
-        setToken1((previousData) => ({...previousData, ...token}));
+    function token1ChangeHandler(tokenData) {
+        setToken1((previousData) => ({...previousData, ...tokenData}));
     }
 
     let accountState = {

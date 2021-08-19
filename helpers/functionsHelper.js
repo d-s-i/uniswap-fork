@@ -22,7 +22,7 @@ export function getPaths(token0Address, token1Address) {
 export async function checkRouterAllowance(tokenName, tokenAmount) {
     const accounts = await web3.eth.getAccounts();
 
-    if(Number.isNaN(parseFloat(tokenAmount))) return;
+    if(Number.isNaN(parseFloat(tokenAmount))) return false;
 
     if(tokenName === "BABYDOGE") {
         const allowance = await babyDoge.methods.allowance(accounts[0], routerAddress).call();

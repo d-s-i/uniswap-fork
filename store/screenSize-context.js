@@ -16,22 +16,18 @@ export function ScreenSizeContextProvider(props) {
 
     useEffect(() => {
         if(xs && !sm) {
-            console.log("xs");
             setSize("xs");
             return;
         }
         if(sm && !md) {
-            console.log("sm");
             setSize("sm");
             return;
         }
         if(md && !lg) {
-            console.log("md");
             setSize("md");
             return;
         }
         if(lg) {
-            console.log("lg");
             setSize("lg");
             return;
         }

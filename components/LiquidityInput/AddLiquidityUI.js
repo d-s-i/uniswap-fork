@@ -68,7 +68,6 @@ function AddLiquidityUI(props) {
                         setIsLoading({state: true, displayLoading: true, message: <TransactionLink url={getTxUrl(hash)} firstPart="Your transaction is being processed here : " lastPart=" Please wait." /> });
                     })
                 .once("confirmation", function(confirmationNumber, receipt) {
-                    console.log("confirmation runnin :)");
                         setIsLoading((prevState) => {
                             return {
                                 ...prevState,
@@ -79,7 +78,7 @@ function AddLiquidityUI(props) {
                         });
                     }); // AJOUTER DU SLIPPAGE DYNAMIQUE
         }
-        if(!isRouterAllowed && parseFloat(token0Amount) !== 0) {
+        if(isRouterAllowed !== undefined && !isRouterAllowed && parseFloat(token0Amount) !== 0) {
             await approveTokens(tokenName);
             liquidityContext.onToken0Change({ approved : true });
         }

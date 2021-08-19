@@ -7,7 +7,7 @@ import { useButtonContext } from "../../store/buttonMessage-context";
 
 import router from "../../ethereum/router";
 import web3 from "../../ethereum/web3";
-import { convertEthToWei, getPaths, checkRouterAllowance, approveTokens, formalizeNumber, txUrl, getTxUrl } from "../../helpers/functionsHelper";
+import { convertEthToWei, getPaths, checkRouterAllowance, approveTokens, formalizeNumber, txUrl, getTxUrl, getDeadline } from "../../helpers/functionsHelper";
 
 import Typography from "@material-ui/core/Typography";
 import SwapFormTokenInput from "./SwapForm/SwapFormTokenInput";
@@ -79,12 +79,13 @@ function SwapCard() {
                 swapContext.onToken1Change({amount: ""});
         } catch (error) {
             if(error.code === 4001) return;
+            const errorObject = JSON.parse(error.toString().slice(49, error.toString().length));
             setIsLoading((prevState) => {
                 return {
                     ...prevState,
                     state: true, 
                     isError: true, 
-                    message: `Your transaction failed ... Check ${txUrl}${blockHash} on etherscan and/or contact admins`
+                    message: <TransactionLink url={getTxUrl(errorObject.transactionHash)} firstPart={`${error.toString().slice(0, 49)} Check `} lastPart=" on etherscan and/or contact admins" />,
                 }
             });
         }
@@ -92,9 +93,7 @@ function SwapCard() {
 
     async function swap() {
         const accounts = await web3.eth.getAccounts();
-        const blockNumber = await web3.eth.getBlockNumber();
-        const now = await web3.eth.getBlock(blockNumber);
-        const deadline = now.timestamp + 10000;
+        const deadline = await getDeadline();
 
         const isToken0Allowed = await checkRouterAllowance(token0Name, token0Amount);
 
@@ -124,19 +123,19 @@ function SwapCard() {
 
             if(token0Name === token1Name) return;
             if(token0Name === "BNB") {
-                const amountOutMin = convertEthToWei(formalizeNumber(token1Amount) * (1 - slippage)) ; 
+                const amountOutMin = convertEthToWei(formalizeNumber(token1Amount * (1 - slippage))) ; 
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);
 
                 handlePendingTransactionUI(router.methods.swapExactETHForTokens(
-                    `${(amountOutMin)}`, 
+                    `${amountOutMin}`, 
                     paths, 
                     accounts[0], 
                     deadline
-                ).send({ from: accounts[0], value: convertEthToWei(token0Amount) }));
+                ).send({ from: accounts[0], value: convertEthToWei(formalizeNumber(token0Amount)) }));
             }
             if(token1Name === "BNB") {
-                const amountIn = convertEthToWei(token0Amount);
-                const amountOutMin = convertEthToWei(formalizeNumber(token1Amount * (1 - slippage))) ;
+                const amountIn = convertEthToWei(formalizeNumber(token0Amount));
+                const amountOutMin = convertEthToWei(formalizeNumber(token1Amount * (1 - slippage)));
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);
 
                 handlePendingTransactionUI(router.methods.swapExactTokensForETH(
@@ -148,8 +147,8 @@ function SwapCard() {
                 ).send({ from: accounts[0] }));
             }
             if(token0Name !== "BNB" && token1Name !== "BNB") {
-                const amountIn = convertEthToWei(token0Amount);
-                const amountOutMin = convertEthToWei(formalizeNumber(token1Amount) * (1 - slippage)) ; 
+                const amountIn = convertEthToWei(formalizeNumber(token0Amount));
+                const amountOutMin = convertEthToWei(formalizeNumber(token1Amount * (1 - slippage)) ) ; 
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);
 
                 handlePendingTransactionUI(
@@ -167,7 +166,7 @@ function SwapCard() {
             
             if(token0Name === token1Name) return;
             if(token0Name === "BNB") {
-                const amountOut = convertEthToWei(token1Amount);
+                const amountOut = convertEthToWei(formalizeNumber(token1Amount));
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);
 
                 handlePendingTransactionUI(
@@ -180,10 +179,12 @@ function SwapCard() {
                 );
             }
             if(token1Name === "BNB") {
-                const amountOut = convertEthToWei(token1Amount);
-                const amountInMax = convertEthToWei(formalizeNumber(token0Amount) * (1 + slippage));
-                const paths = getPaths(swapContext.token0.address, swapContext.token1.address);
+                console.log(formalizeNumber(token1Amount));
+                const amountOut = convertEthToWei(formalizeNumber(token1Amount));
+                const amountInMax = convertEthToWei(formalizeNumber(token0Amount * (1 + slippage)) );
+                const paths = getPaths(swapContext.token0.address, swapContext.token1.address); //
 
+                console.log(`${amountOut}`, `${amountInMax}`, paths, accounts[0], deadline);
                 handlePendingTransactionUI(
                     router.methods.swapTokensForExactETH(
                         `${amountOut}`,
@@ -195,8 +196,8 @@ function SwapCard() {
                 );
             }
             if(token0Name !== "BNB" && token1Name !== "BNB") {
-                const amountOut = convertEthToWei(token1Amount);
-                const amountInMax = convertEthToWei(formalizeNumber(token0Amount) * (1 + slippage));
+                const amountOut = convertEthToWei(formalizeNumber(token1Amount));
+                const amountInMax = convertEthToWei(formalizeNumber(token0Amount * (1 + slippage)));
                 const paths = getPaths(swapContext.token0.address, swapContext.token1.address);          
 
                 handlePendingTransactionUI(
@@ -229,7 +230,6 @@ function SwapCard() {
 
     return(
         <React.Fragment>
-            {/* <SubCard> */}
             <div className={styles.top} >
                 <TitleCard onRedirect={liquidityRedirectHandler} title="Swap" redirectionName="Add Liquidity" />
                 <Typography style={{fontSize: "1.2em"}} variant="subtitle1">
@@ -240,7 +240,6 @@ function SwapCard() {
                 <SwapFormTokenInput />
                 <UserInputButton onClick={swap} disabled={buttonContext.isDisabled} message={buttonContext.message} />
             </div>
-            {/* </SubCard> */}
                 {isLoading.state && isLoading.isError && <ErrorModal onCloseModal={closeModalHandler} message={isLoading.message} displayButton={true} />}
             {isLoading.state && !isLoading.isError && <HandleTransactionCard onCloseModal={closeModalHandler} displayLoading={isLoading.displayLoading} >{isLoading.message}</HandleTransactionCard>}
         </React.Fragment>

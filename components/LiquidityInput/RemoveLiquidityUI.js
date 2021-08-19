@@ -118,7 +118,7 @@ function RemoveLiquidityUI(props) {
         setIsLoading({state: false, message: ""});
     }
   
-    function changePercentageHandler(event, value) {
+    function changePercentageHandler(_, value) {
         setPercentageLPToken(value);
     };
 
@@ -147,7 +147,7 @@ function RemoveLiquidityUI(props) {
         tokenAmountHandler(100);
     }
 
-    function tokenReducer(state, action) {
+    function tokenReducer(_, action) {
         if(action.type === "ADD_BABYDOGE_ADDRESS") return { name: "BABYDOGE", address: babyDogeAddress };
         if(action.type === "ADD_BABYTOY_ADDRESS") return { name: "BABYTOY", address: babyToyAddress };
         if(action.type === "ADD_BABYLEASH_ADDRESS") return { name: "BABYLEASH", address: babyLeashAddress };
@@ -343,7 +343,7 @@ function RemoveLiquidityUI(props) {
                 <div className={styles.margin} ></div>
                 <UserInputButton onClick={removeLiquidity} disabled={isDisabled} message={buttonMessage} type="removeLiquidity" />
             </SubCard>
-            {isLoading.state && !isLoading.isError && <HandleTransactionCard displayLoading={isLoading.displayLoading} >{isLoading.message}</HandleTransactionCard>}
+            {isLoading.state && !isLoading.isError && <HandleTransactionCard onCloseModal={closeModalHandler} displayLoading={isLoading.displayLoading} >{isLoading.message}</HandleTransactionCard>}
         </React.Fragment>
     );
 }

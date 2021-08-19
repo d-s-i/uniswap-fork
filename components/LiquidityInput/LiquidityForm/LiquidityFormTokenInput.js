@@ -43,6 +43,7 @@ function LiquidityFormTokenInput(props) {
     return(
         <FormControl  className={classes.liquidityForm} noValidate autoComplete="off">
             <LiquidityTokenInputAmount id="token0" name="token0" balances={balancesToken0} defaultToken={""} />
+            <div className={styles.margin} ></div>
             <LiquidityTokenInputAmount id="token1" name="token1" balances={balancesToken1} defaultToken={"BNB"} /> 
         </FormControl>
     );

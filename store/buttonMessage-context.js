@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useSwapContext } from './swap-context';
-import { useAddLiquidityContext } from "./addLiquidity-context"
+import { useAddLiquidityContext } from "./addLiquidity-context";
+import { useAuthContext } from "./auth-context";
 import { checkRouterAllowance } from "../helpers/functionsHelper";
 
 const ButtonContext = createContext();
@@ -8,6 +9,7 @@ const ButtonContext = createContext();
 export function ButtonContextProvider(props) {
     const swapContext = useSwapContext();
     const liquidityContext = useAddLiquidityContext();
+    const authContext = useAuthContext();
 
     let defaultMessage;
     let token0Context, token1Context;
@@ -36,6 +38,13 @@ export function ButtonContextProvider(props) {
     async function changeMessageHandler(errorMessage) {
         let message;
 
+        if(!authContext.accounts[0]) {
+            message = "Please connect to the Rinkeby Network";
+            setIsDisabled(true),
+            setButtonMessage(message);
+            return;
+        }
+
         if(errorMessage) {
             message = errorMessage;
             setButtonMessage(message);
@@ -50,7 +59,6 @@ export function ButtonContextProvider(props) {
             return;
         }
         if(Number.isNaN(Number(token0Context.amount))) {
-            console.log(token0Context.amount);
             message = `Please enter a valid ${token0Context.name} amount`;
             setButtonMessage(message);
             setIsDisabled(true);
@@ -77,7 +85,7 @@ export function ButtonContextProvider(props) {
         try {
             const isAllowed = await checkRouterAllowance(token0Context.name, token0Context.amount);
     
-            if((isAllowed || token0Context.name === "BNB") &&  token0Context.amount !== "0" && token1Context.amount !== "0") {
+            if((isAllowed || token0Context.name === "BNB") && token0Context.amount && token1Context.amount) {
                 message = defaultMessage;
                 setIsDisabled(false);
             }
@@ -91,9 +99,7 @@ export function ButtonContextProvider(props) {
         setButtonMessage(message);
     }
     useEffect(() => {
-        // if(!Number.isNaN(parseFloat(swapContext.token0.amount)) && !Number.isNaN(parseFloat(swapContext.token1.amount))) {
-            changeMessageHandler();
-        // }
+        changeMessageHandler();
     }, [swapContext.token0, swapContext.token1, liquidityContext.token0, liquidityContext.token1]);
 
     return (

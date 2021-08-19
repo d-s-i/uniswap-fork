@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useAddLiquidityContext } from "../../../store/addLiquidity-context";
+import { useButtonContext } from "../../../store/buttonMessage-context";
 
 import web3 from "../../../ethereum/web3";
 import router from "../../../ethereum/router";
@@ -24,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
 function LiquidityTokenInputAmount(props) {
 
     const liquidityContext = useAddLiquidityContext();
+    const buttonContext = useButtonContext();
 
     const classes = useStyles();
 
@@ -45,7 +47,12 @@ function LiquidityTokenInputAmount(props) {
                return convertWeiToEth(secondWeiAmount);
             }
         } catch(error) {
-            console.log(error);
+            if(error.toString().includes("too many decimal places")) {
+                buttonContext.onButtonChange("Too small number");
+            }
+            if(error.toString().includes("invalid number value")) {
+                buttonContext.onButtonChange("Invalid number");
+            }
         }
     }
 
@@ -55,6 +62,9 @@ function LiquidityTokenInputAmount(props) {
             liquidityContext.onToken0Change({ amount: enteredValue });
             if(!liquidityContext.token0.name) return;
             if(enteredValue.slice(-1) === "." || enteredValue === "0") return;
+            if(enteredValue === "") {
+                liquidityContext.onToken1Change({ amount: "" });
+            }
             if(enteredValue !== "") {
                 const token1Amount = await calculateCounterParty(enteredValue, false);
                 liquidityContext.onToken1Change({ amount: token1Amount });
@@ -63,6 +73,9 @@ function LiquidityTokenInputAmount(props) {
         if(props.id === "token1") {
             liquidityContext.onToken1Change({ amount: enteredValue });
             if(enteredValue.slice(-1) === "." || enteredValue === "0") return;
+            if(enteredValue === "") {
+                swapContext.onToken0Change({ amount: "" });
+            }
             if(!liquidityContext.token0.name) return;
             if(enteredValue !== "") {
                 const token0Amount = await calculateCounterParty(enteredValue, true);
