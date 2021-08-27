@@ -56,6 +56,7 @@ function compileContract(arrayContractPath) {
       }
 
     let output = JSON.parse(solc.compile(JSON.stringify(input), { import: findImports }));
+    console.log(output);
 
     for(let contractName in output.contracts.Contract) {
         fs.outputJsonSync(
@@ -65,27 +66,6 @@ function compileContract(arrayContractPath) {
     }    
 }
 
-compileContract(["./", "UniswapV2Migrator.sol"]);
-compileContract(["./", "UniswapV2Router01.sol"]);
-compileContract(["./", "UniswapV2Router02.sol"]);
-
-compileContract(["./", "libraries", "UniswapV2Library.sol"]); 
-compileContract(["./", "libraries", "SafeMath.sol"]);
-compileContract(["./", "libraries", "UniswapV2LiquidityMathLibrary.sol"]); 
-compileContract(["./", "libraries", "UniswapV2OracleLibrary.sol"]); 
-
-compileContract(["./", "interfaces", "V1", "IUniswapV1Exchange.sol"]);
-compileContract(["./", "interfaces", "V1", "IUniswapV1Factory.sol"]);
-compileContract(["./", "interfaces", "IERC20.sol"]);
-compileContract(["./", "interfaces", "IUniswapV2Migrator.sol"]);
-compileContract(["./", "interfaces", "IUniswapV2Router01.sol"]);
-compileContract(["./", "interfaces", "IUniswapV2Router02.sol"]); 
-compileContract(["./", "interfaces", "IWETH.sol"]);
-
-compileContract(["./", "test", "ERC20.sol"]);
-compileContract(["./", "test", "BabyDoge.sol"]);
-compileContract(["./", "test", "BabyLeash.sol"]);
-compileContract(["./", "test", "BabyToy.sol"]);
-compileContract(["./", "test", "DeflatingERC20.sol"]);
-compileContract(["./", "test", "WETH9.sol"]);
-compileContract(["./", "test", "RouterEventEmitter.sol"]);
+compileContract(["./", "LiquidityMigrator.sol"]);
+compileContract(["./", "YieldFarming.sol"]);
+compileContract(["./", "tokens", "BonusToken.sol"]);

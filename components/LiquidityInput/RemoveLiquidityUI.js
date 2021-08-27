@@ -209,7 +209,7 @@ function RemoveLiquidityUI(props) {
         const lpTokenTotalSupply = await lpToken.methods.totalSupply().call();
 
         const maxLiquidityToRemove = await lpToken.methods.balanceOf(authContext.accounts[0]).call();
-        const currentLiquidityToRemove = maxLiquidityToRemove * (selectedPercentageLpToken / 100);
+        const currentLiquidityToRemove = (maxLiquidityToRemove * (selectedPercentageLpToken / 100)) - 1000;
         setLiquidityToRemove(currentLiquidityToRemove);
 
         const uniswapV2Pair = await new web3.eth.Contract(compiledUniswapV2Pair.abi, poolAddress);

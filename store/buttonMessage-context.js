@@ -94,7 +94,7 @@ export function ButtonContextProvider(props) {
                 setIsDisabled(false);
             }
         } catch(error) {
-            message = "Invalid Input";
+            message = "Invalid amount";
         }
         setButtonMessage(message);
     }
