@@ -6,6 +6,7 @@ import web3 from "../../../ethereum/web3";
 import router from "../../../ethereum/router";
 import compiledUniswapV2Pair from "../../../ethereum/contracts/core/build/UniswapV2Pair.json";
 import factory from "../../../ethereum/factory";
+import { wethAddress } from "../../../ethereum/tokens/WETH";
 import { convertWeiToEth, convertEthToWei } from "../../../helpers/functionsHelper";
 
 import LiquiditySelectToken from "./LiquiditySelectToken";
@@ -29,19 +30,22 @@ function LiquidityTokenInputAmount(props) {
 
     const classes = useStyles();
 
-    async function calculateCounterParty(amountInput, isCalcFirst) {
+    async function calculateCounterParty(amountInput, isFirstAmountCalculated) {
         try {
             const pairAddress = await factory.methods.getPair(liquidityContext.token0.address, "0xc778417E063141139Fce010982780140Aa0cD5Ab").call();
-            if(pairAddress !== "0x0000000000000000000000000000000000000000" && parseFloat(amountInput) !== 0) {
+            if(pairAddress === "0x0000000000000000000000000000000000000000") {
+                return props.id === "token0" ? liquidityContext.token1.amount : liquidityContext.token0.amount;
+            }
+            if(parseFloat(amountInput) !== 0) {
                 const uniswapV2Pair = await new web3.eth.Contract(compiledUniswapV2Pair.abi, pairAddress);
                 const reserves = await uniswapV2Pair.methods.getReserves().call();
                 let reserve0, reserve1;
-                if(isCalcFirst) {
-                    reserve0 = reserves[1];
-                    reserve1 = reserves[0];
-                } else {
+                if(parseInt(pairAddress, 16) > parseInt(wethAddress, 16)) { 
+                    reserve1 = reserves[1]; 
                     reserve0 = reserves[0];
-                    reserve1 = reserves[1];
+                } else {
+                    reserve1 = reserves[0];
+                    reserve0 = reserves[1];
                 }
                 const secondWeiAmount = await router.methods.quote(convertEthToWei(amountInput), reserve0, reserve1).call();
                return convertWeiToEth(secondWeiAmount);

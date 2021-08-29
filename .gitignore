@@ -36,3 +36,4 @@ yarn-error.log*
 #deploy
 /ethereum/contracts/core/deploy.js
 /ethereum/contracts/periphery/deploy.js
+/ethereum/contracts/migrator/deploy.js

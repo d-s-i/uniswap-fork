@@ -1,7 +1,7 @@
 import web3 from "../web3";
 import BabyDoge from "../contracts/periphery/build/BabyDoge.json";
 
-export const babyDogeAddress = "0x76c51246641F711aAAe87C8Ef2C95da186798FB2";
+export const babyDogeAddress = "0x0AE8dc31ECBD171B774e23Ab01680F1752927593";
 
 export const babyDogeData = {name: "BABYDOGE", address: babyDogeAddress};
 

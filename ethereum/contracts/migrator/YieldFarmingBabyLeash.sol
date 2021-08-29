@@ -1,25 +1,23 @@
 pragma solidity =0.6.6;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "./tokens/IUniswapV2Pair.sol";
-import "./tokens/BonusToken.sol";
+import "../periphery/test/BabyToy.sol";
 
-contract YieldFarming {
+contract YieldFarmingBabyLeash {
 
     using SafeMath for uint256;
     
     IUniswapV2Pair public pairFork;
-    BonusToken public bonusToken;
+    BabyToy public babyToy;
     address public admin;
     mapping(address => uint256) public depositedAmount;
     mapping(address => bool) public isStaking;
     mapping(address => uint256) public startTime;
     mapping(address => uint256) public rewards;
 
-    constructor(address _pairFork, address _bonusToken) public {
+    constructor(address _pairFork, address _babyToy) public {
         pairFork = IUniswapV2Pair(_pairFork);
-        bonusToken = BonusToken(_bonusToken);
+        babyToy = BabyToy(_babyToy);
         admin = msg.sender;
     }
 
@@ -27,7 +25,7 @@ contract YieldFarming {
 
         if(isStaking[msg.sender] == true){
             uint256 toTransfer = calculateYieldTotal(msg.sender);
-            rewards[msg.sender] == 0 ? rewards[msg.sender] = toTransfer : rewards[msg.sender].add(rewards[msg.sender]);
+            rewards[msg.sender] == 0 ? rewards[msg.sender] = toTransfer : rewards[msg.sender].add(toTransfer);
         }
 
         pairFork.transferFrom(msg.sender, address(this), _amount);
@@ -38,15 +36,12 @@ contract YieldFarming {
 
     function unstake(uint256 _amount) external {
         require(depositedAmount[msg.sender] != 0, "Nothing to unstake ...");
-        require(_amount <= depositedAmount[msg.sender], "Withdraw amount to high!");
-        pairFork.transfer(msg.sender, _amount);
+        require(_amount <= depositedAmount[msg.sender], "Withdraw amount too high!");
         uint256 balanceTransfer = _amount;
         _amount = 0;
-        depositedAmount[msg.sender].sub(balanceTransfer);
-        uint256 yieldTransfer = calculateYieldTotal(msg.sender);
-        startTime[msg.sender] = block.timestamp; 
-        depositedAmount[msg.sender].sub(balanceTransfer);
-        rewards[msg.sender].add(yieldTransfer);
+        withdrawRewards();
+        pairFork.transfer(msg.sender, balanceTransfer);
+        depositedAmount[msg.sender] = depositedAmount[msg.sender].sub(balanceTransfer);
         if(depositedAmount[msg.sender] == 0){
             isStaking[msg.sender] = false;
         }
@@ -64,11 +59,11 @@ contract YieldFarming {
         if(rewards[msg.sender] != 0){
             uint256 oldBalance = rewards[msg.sender];
             rewards[msg.sender] = 0;
-            toTransfer += oldBalance;
+            toTransfer = toTransfer.add(oldBalance);
         }
 
         startTime[msg.sender] = block.timestamp;
-        bonusToken.mint(msg.sender, toTransfer);
+        babyToy.mint(msg.sender, toTransfer);
     }
 
     function calculateYieldTime(address user) public view returns(uint256){

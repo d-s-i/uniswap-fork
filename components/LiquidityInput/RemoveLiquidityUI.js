@@ -14,8 +14,8 @@ import { wethAddress } from "../../ethereum/tokens/WETH";
 import { convertWeiToEth, getDeadline, getTxUrl } from "../../helpers/functionsHelper";
 import factory from "../../ethereum/factory";
 import router, { routerAddress } from "../../ethereum/router";
-import compiledERC20 from "../../ethereum/contracts/periphery/build/ERC20.json";
 import compiledUniswapV2Pair from "../../ethereum/contracts/core/build/UniswapV2Pair.json";
+import compiledUniswapV2ERC20 from "../../ethereum/contracts/core/build/UniswapV2ERC20.json";
 import { useAuthContext } from "../../store/auth-context";
 import TransactionLink from "../UI/TransactionLink";
 
@@ -104,8 +104,10 @@ function RemoveLiquidityUI(props) {
 
     async function getPoolInfos() {
         const poolAddress = await factory.methods.getPair(token.address, wethAddress).call();
-        const lpToken = await new web3.eth.Contract(compiledERC20.abi, poolAddress);
+        console.log(poolAddress);
+        const lpToken = await new web3.eth.Contract(compiledUniswapV2Pair.abi, poolAddress);
         return [poolAddress, lpToken];
+        // return [poolAddress, ""]
     }
 
     const [percentageLPToken, setPercentageLPToken] = useState(initialValue);
@@ -177,10 +179,11 @@ function RemoveLiquidityUI(props) {
             return "Select a token";
         }
         const [, lpToken] = await getPoolInfos();
-        const lpTokenBalance = await lpToken.methods.balanceOf(authContext.accounts[0]).call();
+        console.log(lpToken);
+        const lpTokenBalance = await lpToken.methods.balanceOf(authContext.accounts[0]).call(); // problème vient de ce call
         if(lpTokenBalance === "0") {
             setIsDisabled(true);
-            return "You didn't provided liquidity to this pool"
+            return "Nothing to withdraw"
         }
         if(!liquidityToRemove) {
             setIsDisabled(true);
@@ -209,13 +212,21 @@ function RemoveLiquidityUI(props) {
         const lpTokenTotalSupply = await lpToken.methods.totalSupply().call();
 
         const maxLiquidityToRemove = await lpToken.methods.balanceOf(authContext.accounts[0]).call();
-        const currentLiquidityToRemove = (maxLiquidityToRemove * (selectedPercentageLpToken / 100)) - 1000;
+        const currentLiquidityToRemove = (maxLiquidityToRemove * (selectedPercentageLpToken / 100));
         setLiquidityToRemove(currentLiquidityToRemove);
 
         const uniswapV2Pair = await new web3.eth.Contract(compiledUniswapV2Pair.abi, poolAddress);
         const reserves = await uniswapV2Pair.methods.getReserves().call();
-        const reserve0 = reserves[0];
-        const reserve1 = reserves[1];
+        console.log();
+        // console.log(parseFloat(token.address) > parseFloat(wethAddress));
+        let reserve0, reserve1;
+        if(parseInt(token.address, 16) > parseInt(wethAddress, 16)) {
+            reserve1 = reserves[0];
+            reserve0 = reserves[1];
+        } else {
+            reserve0 = reserves[0];
+            reserve1 = reserves[1];
+        }
         setToken0Amount((currentLiquidityToRemove * reserve0) / lpTokenTotalSupply);
         setToken1Amount((currentLiquidityToRemove * reserve1) / lpTokenTotalSupply);
     }
@@ -237,7 +248,7 @@ function RemoveLiquidityUI(props) {
         if(isRouterAllowed && token0Amount !== 0) {
             await router.methods.removeLiquidityETH(
                 `${token.address}`, 
-                `${BigInt(liquidityToRemove)}`, 
+                `${BigInt(liquidityToRemove) - BigInt(1000)}`, 
                 `${BigInt(token0Amount * (1 - slippage))}`, 
                 `${BigInt(token1Amount * (1 - slippage))}`,
                 authContext.accounts[0],

@@ -41,6 +41,10 @@ function compileContract(arrayContractPath) {
             const sourceCodeToImport = fs.readFileSync(`../../../node_modules/${path}`);
             return { contents: `${sourceCodeToImport}` };
         } 
+        if(path.includes("periphery")) {
+            const sourceCodeToImport = fs.readFileSync(`../${path}`);
+            return { contents: `${sourceCodeToImport}` };
+        }
         if (arrayContractPath.length === 2) { // array contract path is "./" + contract.sol, i.e the compield contract is in the same folder as compile.js => import paths have the same starting point, no need to change them
             const sourceCodeToImport = fs.readFileSync(`./${path}`);
             return { contents: `${sourceCodeToImport}` };
@@ -49,8 +53,8 @@ function compileContract(arrayContractPath) {
             const sourceCodeToImport = fs.readFileSync(`./${intermediateFoldersOfCurrentContract.join("/")}/${path}`);
             return { contents: `${sourceCodeToImport}` };
         }
-        else { // if neither of these, contract must be (in my case) accessible from the compile.js, i.e no need to change the path
-            const sourceCodeToImport = fs.readFileSync(`./${path}`);
+        else { // if neither of these, contract must be (in my case) accessible from outside the compile.js
+            const sourceCodeToImport = fs.readFileSync(`../${path}`);
             return { contents: `${sourceCodeToImport}` }
         }
       }
@@ -66,6 +70,5 @@ function compileContract(arrayContractPath) {
     }    
 }
 
-compileContract(["./", "LiquidityMigrator.sol"]);
-compileContract(["./", "YieldFarming.sol"]);
-compileContract(["./", "tokens", "BonusToken.sol"]);
+compileContract(["./", "YieldFarmingBabyLeash.sol"]);
+compileContract(["./", "YieldFarmingBabyDoge.sol"]);

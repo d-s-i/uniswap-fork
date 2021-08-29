@@ -1,12 +1,15 @@
 pragma solidity =0.6.6;
 
-import '../libraries/SafeMath.sol';
+import '@openzeppelin/contracts/math/SafeMath.sol';
 
-contract BabyLeash {
+contract  BabyLeash {
     using SafeMath for uint;
 
-    string public constant name = 'Baby Leash';
-    string public constant symbol = 'BABYLEASH';
+    address public admin;
+    address public allowedMinter;
+
+    string public constant name = "Baby Leash";
+    string public constant symbol = "BABYLEASH";
     uint8 public constant decimals = 18;
     uint  public totalSupply;
     mapping(address => uint) public balanceOf;
@@ -35,6 +38,7 @@ contract BabyLeash {
             )
         );
         _mint(msg.sender, _totalSupply);
+        admin = msg.sender;
     }
 
     function _mint(address to, uint value) internal {
@@ -90,5 +94,15 @@ contract BabyLeash {
         address recoveredAddress = ecrecover(digest, v, r, s);
         require(recoveredAddress != address(0) && recoveredAddress == owner, 'INVALID_SIGNATURE');
         _approve(owner, spender, value);
+    }
+
+    function setAllowedMinter(address _allowedMinter) external {
+        require(msg.sender == admin, "only admin");
+        allowedMinter = _allowedMinter;
+    }
+
+    function mint(address to, uint amount) external {
+        require(msg.sender == allowedMinter, "only allowed minter");
+        _mint(to, amount);
     }
 }

@@ -7,7 +7,6 @@ import web3 from "../../ethereum/web3";
 
 import LiquidityFormTokenInput from "./LiquidityForm/LiquidityFormTokenInput";
 import UserInputButton from "../UI/Buttons/UserInputButton";
-import SubCard from "../UI/Cards/SubCard";
 import TitleCard from "../UI/Cards/TitleCard";
 import HandleTransactionCard from "../UI/Cards/HandleTransactionCard";
 import TransactionLink from "../UI/TransactionLink";
@@ -15,20 +14,6 @@ import TransactionLink from "../UI/TransactionLink";
 import { Typography } from "@material-ui/core";
 
 import styles from "./AddLiquidityUI.module.css";
-import { makeStyles } from '@material-ui/core/styles';
-
-const useStyles = makeStyles((theme) => ({
-    button: {
-      margin: theme.spacing(1),
-      textTransform: "none"
-    },
-    swapTitle: {
-        color: "#0ab5db",
-        fontWeight: "bold",
-        display: "flex",
-        alignItems: "center"
-    }
-  }));
 
 function AddLiquidityUI(props) {
 
